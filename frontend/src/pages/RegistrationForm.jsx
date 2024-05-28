@@ -12,6 +12,8 @@ import {
   FormControl,
   Button,
   VStack,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
 
 const RegistrationForm = () => {
@@ -21,6 +23,8 @@ const RegistrationForm = () => {
   const [guardianName, setGuardianName] = useState("");
   const [age, setAge] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -34,18 +38,20 @@ const RegistrationForm = () => {
       phoneNumber,
     };
 
-    console.log("hello");
-    console.log("hellsdaso");
+    console.log("Submitting Patient Details:", patientDetail);
 
     axios
       .post("http://localhost:3000/api/v1/patient", patientDetail)
       .then((res) => {
-        console.log(res);
-        console.log("hello there");
+        console.log("Response from server:", res.data);
+        setSuccessMessage("Patient registered successfully!");
+        setErrorMessage("");
       })
-      .catch((err) => console.log(err));
-    console.log("hello");
-    console.log("hellsdaso");
+      .catch((err) => {
+        console.log("Error:", err);
+        setErrorMessage("Failed to register patient. Please try again.");
+        setSuccessMessage("");
+      });
   };
 
   return (
@@ -53,9 +59,21 @@ const RegistrationForm = () => {
       <Heading textAlign="center" mt="1rem">
         OPD Registration
       </Heading>
+      {successMessage && (
+        <Alert status="success" mt="1rem">
+          <AlertIcon />
+          {successMessage}
+        </Alert>
+      )}
+      {errorMessage && (
+        <Alert status="error" mt="1rem">
+          <AlertIcon />
+          {errorMessage}
+        </Alert>
+      )}
       <VStack w={"100%"} alignItems="space-between">
         <form onSubmit={handleSubmit}>
-          <Grid templateColumns="repeat(2,1fr)" w="100%" mt="2rem" gap={10}>
+          <Grid templateColumns="repeat(2, 1fr)" w="100%" mt="2rem" gap={10}>
             <GridItem w={"100%"}>
               <Box>
                 <FormControl>
