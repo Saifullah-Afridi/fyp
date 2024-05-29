@@ -22,9 +22,9 @@ exports.getAllEmploye = catchAsyncError(async (req, res, next) => {
 exports.getSingleEmployee = catchAsyncError(async (req, res, next) => {
   const employee = await Employee.findById(req.params.id);
   if (!employee) {
-    return next(new AppError("Employee does found with this id", 404));
+    return next(new AppError("Paitents does not exist", 404));
   }
-  await res.status(200).json({
+  res.status(200).json({
     status: "success",
     employee,
   });
@@ -36,7 +36,7 @@ exports.deleteEmployee = catchAsyncError(async (req, res, next) => {
   if (!deletedEmployee) {
     return next(new AppError("Employee does found with this id", 404));
   }
-  await res.status(200).json({
+  res.status(200).json({
     status: "success",
     message: "Employee has been deleted",
     deletedEmployee,

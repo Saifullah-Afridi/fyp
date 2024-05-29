@@ -16,7 +16,17 @@ import {
   VStack,
   Alert,
   AlertIcon,
+  Text,
+  Icon,
 } from "@chakra-ui/react";
+import {
+  FaUser,
+  FaIdCard,
+  FaMapMarkerAlt,
+  FaPhone,
+  FaUserShield,
+  FaCalendarAlt,
+} from "react-icons/fa";
 
 const RegistrationForm = () => {
   const [successMessage, setSuccessMessage] = useState("");
@@ -32,14 +42,30 @@ const RegistrationForm = () => {
       phoneNumber: "",
     },
     validationSchema: Yup.object({
-      patientName: Yup.string().required("Required"),
-      NIC: Yup.string().required("Required"),
-      address: Yup.string().required("Required"),
-      guardianName: Yup.string().required("Required"),
-      age: Yup.number()
+      patientName: Yup.string()
         .required("Required")
-        .min(0, "Age must be a positive number"),
-      phoneNumber: Yup.string().required("Required"),
+        .min(3, "The minimum length of the name should be 3")
+        .max(15, "The maximum length of the name should be 15"),
+      NIC: Yup.string()
+        .required("Required")
+        .min(13, "The minimum length of the NIC should be 13")
+        .max(13, "The maximum length of the NIC should be 13")
+        .matches(/^\d+$/, "NIC must be a number"),
+      address: Yup.string()
+        .required("Required")
+        .min(4, "The address should be of length of 4"),
+      guardianName: Yup.string()
+        .required("Required")
+        .min(3, "The minimum length of the name should be 3")
+        .max(15, "The maximum length of the name should be 15"),
+      age: Yup.string()
+        .required("Required")
+        .min(1, "Age must be a positive number")
+        .matches(/^\d+$/, "Age must be a number"),
+      phoneNumber: Yup.string()
+        .required("Required")
+        .min(11, "The phone number is wrong")
+        .matches(/^\d+$/, "Phone number is wrong"),
     }),
     onSubmit: (values) => {
       axios
@@ -63,185 +89,164 @@ const RegistrationForm = () => {
   };
 
   return (
-    <Container minWidth={"95%"}>
-      <Heading textAlign="center" mt="1rem">
-        OPD Registration
-      </Heading>
-      {successMessage && (
-        <Alert status="success" mt="1rem">
-          <AlertIcon />
-          {successMessage}
-        </Alert>
-      )}
-      {errorMessage && (
-        <Alert status="error" mt="1rem">
-          <AlertIcon />
-          {errorMessage}
-        </Alert>
-      )}
-      <VStack w={"100%"} alignItems="space-between">
+    <Container py={6} maxWidth="90%">
+      <Box bg="white" p={6} rounded="md" shadow="sm" w="100%">
+        <Heading textAlign="center" mb={8}>
+          OPD Registration
+        </Heading>
+        {successMessage && (
+          <Alert status="success" mb={4}>
+            <AlertIcon />
+            {successMessage}
+          </Alert>
+        )}
+        {errorMessage && (
+          <Alert status="error" mb={4}>
+            <AlertIcon />
+            {errorMessage}
+          </Alert>
+        )}
         <form onSubmit={formik.handleSubmit}>
-          <Grid templateColumns="repeat(2, 1fr)" w="100%" mt="2rem" gap={10}>
-            <GridItem w={"100%"}>
-              <Box>
-                <FormControl
-                  isInvalid={
-                    formik.errors.patientName && formik.touched.patientName
-                  }
-                >
-                  <HStack justifyItems="center">
-                    <FormLabel w={"20%"} fontSize="14px">
-                      Patient Name
-                    </FormLabel>
-                    <Input
-                      type="text"
-                      borderColor="black"
-                      w="80%"
-                      name="patientName"
-                      size="small"
-                      borderRadius="4px"
-                      value={formik.values.patientName}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                    />
-                  </HStack>
-                </FormControl>
-              </Box>
-              <Box mt="1rem">
-                <FormControl
-                  isInvalid={formik.errors.NIC && formik.touched.NIC}
-                >
-                  <HStack justifyItems="center">
-                    <FormLabel w={"20%"} fontSize="14px">
-                      NIC
-                    </FormLabel>
-                    <Input
-                      type="text"
-                      borderColor="black"
-                      w="80%"
-                      name="NIC"
-                      size="small"
-                      borderRadius="4px"
-                      value={formik.values.NIC}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                    />
-                  </HStack>
-                </FormControl>
-              </Box>
-              <Box mt="1rem">
-                <FormControl
-                  isInvalid={formik.errors.address && formik.touched.address}
-                >
-                  <HStack justifyItems="center">
-                    <FormLabel w={"20%"} fontSize="14px">
-                      Address
-                    </FormLabel>
-                    <Input
-                      type="text"
-                      borderColor="black"
-                      w="80%"
-                      name="address"
-                      size="small"
-                      borderRadius="4px"
-                      value={formik.values.address}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                    />
-                  </HStack>
-                </FormControl>
-              </Box>
+          <Grid templateColumns="repeat(2, 1fr)" gap={6}>
+            <GridItem>
+              <FormControl
+                isInvalid={
+                  formik.errors.patientName && formik.touched.patientName
+                }
+              >
+                <HStack w="100%">
+                  <FormLabel fontSize="sm" w="40%">
+                    <Icon as={FaUser} mr={2} /> Patient Name
+                  </FormLabel>
+                  <Input
+                    type="text"
+                    placeholder="Enter patient name"
+                    {...formik.getFieldProps("patientName")}
+                  />
+                </HStack>
+                {formik.errors.patientName && formik.touched.patientName && (
+                  <Text color="red.500" fontSize="sm" mt={1}>
+                    {formik.errors.patientName}
+                  </Text>
+                )}
+              </FormControl>
             </GridItem>
-            <GridItem w={"100%"}>
-              <Box>
-                <FormControl
-                  isInvalid={
-                    formik.errors.guardianName && formik.touched.guardianName
-                  }
-                >
-                  <HStack justifyItems="center">
-                    <FormLabel w={"20%"} fontSize="14px">
-                      Guardian Name
-                    </FormLabel>
-                    <Input
-                      type="text"
-                      borderColor="black"
-                      w="80%"
-                      size="small"
-                      name="guardianName"
-                      borderRadius="4px"
-                      value={formik.values.guardianName}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                    />
-                  </HStack>
-                </FormControl>
-              </Box>
-              <Box mt="1rem">
-                <FormControl
-                  isInvalid={formik.errors.age && formik.touched.age}
-                >
-                  <HStack justifyItems="center">
-                    <FormLabel w={"20%"} fontSize="14px">
-                      Age
-                    </FormLabel>
-                    <Input
-                      type="text"
-                      borderColor="black"
-                      w="80%"
-                      name="age"
-                      size="small"
-                      borderRadius="4px"
-                      value={formik.values.age}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                    />
-                  </HStack>
-                </FormControl>
-              </Box>
-              <Box mt="1rem">
-                <FormControl
-                  isInvalid={
-                    formik.errors.phoneNumber && formik.touched.phoneNumber
-                  }
-                >
-                  <HStack justifyItems="center">
-                    <FormLabel w={"20%"} fontSize="14px">
-                      Phone Number
-                    </FormLabel>
-                    <Input
-                      type="text"
-                      borderColor="black"
-                      w="80%"
-                      name="phoneNumber"
-                      size="small"
-                      borderRadius="4px"
-                      value={formik.values.phoneNumber}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                    />
-                  </HStack>
-                </FormControl>
-              </Box>
+            <GridItem>
+              <FormControl isInvalid={formik.errors.NIC && formik.touched.NIC}>
+                <HStack>
+                  <FormLabel fontSize="sm" w="40%">
+                    <Icon as={FaIdCard} mr={2} /> NIC
+                  </FormLabel>
+                  <Input
+                    type="text"
+                    placeholder="Enter NIC"
+                    {...formik.getFieldProps("NIC")}
+                  />
+                </HStack>
+                {formik.errors.NIC && formik.touched.NIC && (
+                  <Text color="red.500" fontSize="sm" mt={1}>
+                    {formik.errors.NIC}
+                  </Text>
+                )}
+              </FormControl>
+            </GridItem>
+            <GridItem>
+              <FormControl
+                isInvalid={formik.errors.address && formik.touched.address}
+              >
+                <HStack>
+                  <FormLabel fontSize="sm" w="40%">
+                    <Icon as={FaMapMarkerAlt} mr={2} /> Address
+                  </FormLabel>
+                  <Input
+                    type="text"
+                    placeholder="Enter address"
+                    {...formik.getFieldProps("address")}
+                  />
+                </HStack>
+                {formik.errors.address && formik.touched.address && (
+                  <Text color="red.500" fontSize="sm" mt={1}>
+                    {formik.errors.address}
+                  </Text>
+                )}
+              </FormControl>
+            </GridItem>
+            <GridItem>
+              <FormControl
+                isInvalid={
+                  formik.errors.guardianName && formik.touched.guardianName
+                }
+              >
+                <HStack>
+                  <FormLabel fontSize="sm" w="40%">
+                    <Icon as={FaUserShield} mr={2} /> Guardian Name
+                  </FormLabel>
+                  <Input
+                    type="text"
+                    placeholder="Enter guardian name"
+                    {...formik.getFieldProps("guardianName")}
+                  />
+                </HStack>
+                {formik.errors.guardianName && formik.touched.guardianName && (
+                  <Text color="red.500" fontSize="sm" mt={1}>
+                    {formik.errors.guardianName}
+                  </Text>
+                )}
+              </FormControl>
+            </GridItem>
+            <GridItem>
+              <FormControl isInvalid={formik.errors.age && formik.touched.age}>
+                <HStack>
+                  <FormLabel fontSize="sm" w="40%">
+                    <Icon as={FaCalendarAlt} mr={2} /> Age
+                  </FormLabel>
+                  <Input
+                    type="text"
+                    placeholder="Enter age"
+                    {...formik.getFieldProps("age")}
+                  />
+                </HStack>
+                {formik.errors.age && formik.touched.age && (
+                  <Text color="red.500" fontSize="sm" mt={1}>
+                    {formik.errors.age}
+                  </Text>
+                )}
+              </FormControl>
+            </GridItem>
+            <GridItem>
+              <FormControl
+                isInvalid={
+                  formik.errors.phoneNumber && formik.touched.phoneNumber
+                }
+              >
+                <HStack>
+                  <FormLabel fontSize="sm" w="40%">
+                    <Icon as={FaPhone} mr={2} /> Phone Number
+                  </FormLabel>
+                  <Input
+                    type="text"
+                    placeholder="Enter phone number"
+                    {...formik.getFieldProps("phoneNumber")}
+                  />
+                </HStack>
+                {formik.errors.phoneNumber && formik.touched.phoneNumber && (
+                  <Text color="red.500" fontSize="sm" mt={1}>
+                    {formik.errors.phoneNumber}
+                  </Text>
+                )}
+              </FormControl>
             </GridItem>
           </Grid>
-          <Box w="100%" display="flex" justifyContent="flex-end" gap="10px">
-            <Button
-              type="button"
-              mt="2rem"
-              bg="red.400"
-              w={"10%"}
-              _hover={{ bg: "red.600" }}
-              onClick={handleClear}
-            >
+          <HStack justify="flex-end" mt={6}>
+            <Button colorScheme="red" onClick={handleClear}>
               Clear All
-            </Button>{" "}
-            <Button type="submit" mt="2rem" colorScheme="blue" w={"10%"}>
+            </Button>
+            <Button colorScheme="blue" type="submit">
               Save
             </Button>
-          </Box>
+          </HStack>
         </form>
-      </VStack>
+      </Box>
     </Container>
   );
 };
