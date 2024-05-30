@@ -241,7 +241,7 @@ const RegistrationForm = () => {
             <Button colorScheme="red" onClick={handleClear}>
               Clear All
             </Button>
-            <Button colorScheme="blue" type="submit">
+            <Button colorScheme="blue" type="submit" w="100px">
               Save
             </Button>
           </HStack>

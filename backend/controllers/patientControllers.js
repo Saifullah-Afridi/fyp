@@ -10,7 +10,7 @@ exports.createPatient = catchAsyncError(async (req, res, next) => {
   });
 });
 
-exports.getAllPatient = catchAsyncError(async (req, res, next) => {
+exports.getAllPatients = catchAsyncError(async (req, res, next) => {
   const patients = await Patient.find();
   if (!patients) {
     return next(new AppError("Patients does not exist", 404));
