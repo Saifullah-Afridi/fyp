@@ -65,7 +65,7 @@ const RegistrationForm = () => {
       phoneNumber: Yup.string()
         .required("Required")
         .min(11, "The phone number is wrong")
-        .matches(/^\d+$/, "Phone number is wrong"),
+        .matches(/^03[0-9]{9}$/, "Phone number is not valid"),
     }),
     onSubmit: (values) => {
       axios

@@ -32,6 +32,20 @@ const patientSchema = new mongoose.Schema(
       type: String,
       required: [true, "Please provide age of patient"],
     },
+    bloodGroup: {
+      type: String,
+    },
+    role: {
+      type: String,
+      default: "patient",
+    },
+    gender: {
+      type: String,
+    },
+    //doctor prescription
+    //pharamacy detail
+    //test detail
+    //role if making the registration for reciptionsit ,doctor,patient account,laboratzory etc
   },
   { timestamps: true }
 );
