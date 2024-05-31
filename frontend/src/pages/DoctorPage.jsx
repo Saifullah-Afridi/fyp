@@ -1,15 +1,23 @@
-import { Container } from "@chakra-ui/react";
-import React, { useEffect } from "react";
+import { Container, Text } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const DoctorPage = () => {
+  const [patientData, setPatientData] = useState([]);
   useEffect(() => {
     axios
-      .get("http://locahost:3000/patient")
-      .then((res) => res.data)
+      .get("http://localhost:3000/api/v1/patient")
+      .then((res) => {
+        setPatientData(res.data);
+        console.log(res.data.patients);
+      })
       .catch((err) => console.log(err.message));
   }, []);
-  return <Container py={6} maxWidth="90%"></Container>;
+  return (
+    <Container py={6} maxWidth="90%">
+      <Text>Doctor page</Text>
+    </Container>
+  );
 };
 
 export default DoctorPage;
