@@ -7,6 +7,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const patientRoutes = require("./routes/PatientRoutes");
+const doctorRoutes = require("./routes/doctorRoutes");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -25,6 +26,7 @@ app.get("/a", (req, res) => {
   res.send("hello there");
 });
 app.use("/api/v1/patient", patientRoutes);
+app.use("/api/v1/patient", doctorRoutes);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`can not find ${req.originalUrl} on this server`, 404));

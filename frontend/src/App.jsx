@@ -8,8 +8,8 @@ const App = () => {
   return (
     <div>
       {/* <RegistrationForm></RegistrationForm> */}
-      {/* <DoctorPage /> */}
-      <PatientList></PatientList>
+      <DoctorPage />
+      {/* <PatientList></PatientList> */}
     </div>
   );
 };

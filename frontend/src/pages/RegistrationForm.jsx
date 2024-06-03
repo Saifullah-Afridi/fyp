@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -8,16 +8,15 @@ import {
   Grid,
   GridItem,
   Box,
-  HStack,
-  Input,
   FormLabel,
   FormControl,
   Button,
-  VStack,
   Alert,
   AlertIcon,
   Text,
   Icon,
+  Input,
+  Image,
 } from "@chakra-ui/react";
 import {
   FaUser,
@@ -27,10 +26,12 @@ import {
   FaUserShield,
   FaCalendarAlt,
 } from "react-icons/fa";
+import Print from "../components/Print";
 
 const RegistrationForm = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const printRef = useRef();
 
   const formik = useFormik({
     initialValues: {
@@ -40,58 +41,66 @@ const RegistrationForm = () => {
       guardianName: "",
       age: "",
       phoneNumber: "",
+      imageSrc: "https://via.placeholder.com/100", // Placeholder image URL
     },
     validationSchema: Yup.object({
       patientName: Yup.string()
         .required("Required")
-        .min(3, "The minimum length of the name should be 3")
-        .max(15, "The maximum length of the name should be 15"),
+        .min(3, "Minimum length should be 3 characters")
+        .max(15, "Maximum length should be 15 characters"),
       NIC: Yup.string()
         .required("Required")
-        .min(13, "The minimum length of the NIC should be 13")
-        .max(13, "The maximum length of the NIC should be 13")
-        .matches(/^\d+$/, "NIC must be a number"),
+        .length(13, "NIC must be exactly 13 characters"),
       address: Yup.string()
         .required("Required")
-        .min(4, "The address should be of length of 4"),
+        .min(10, "Minimum length should be 10 characters"),
       guardianName: Yup.string()
         .required("Required")
-        .min(3, "The minimum length of the name should be 3")
-        .max(15, "The maximum length of the name should be 15"),
-      age: Yup.string()
+        .min(3, "Minimum length should be 3 characters")
+        .max(15, "Maximum length should be 15 characters"),
+      age: Yup.number()
         .required("Required")
-        .min(1, "Age must be a positive number")
-        .matches(/^\d+$/, "Age must be a number"),
+        .positive("Age must be a positive number")
+        .integer("Age must be an integer"),
       phoneNumber: Yup.string()
         .required("Required")
-        .min(11, "The phone number is wrong")
-        .matches(/^03[0-9]{9}$/, "Phone number is not valid"),
+        .matches(
+          /^03[0-9]{9}$/,
+          "Phone number must be valid Pakistani format (03XXXXXXXXX)"
+        ),
+      imageSrc: Yup.string().url("Invalid image URL"),
     }),
     onSubmit: (values) => {
       axios
         .post("http://localhost:3000/api/v1/patient", values)
-        .then((res) => {
+        .then((response) => {
           setSuccessMessage("Patient registered successfully!");
           setErrorMessage("");
-          // resetForm();
         })
-        .catch((err) => {
+        .catch((error) => {
           setErrorMessage("Failed to register patient. Please try again.");
           setSuccessMessage("");
         });
     },
   });
 
-  const handleClear = () => {
-    formik.resetForm();
-    setSuccessMessage("");
-    setErrorMessage("");
+  const handlePrint = () => {
+    const printContent = printRef.current;
+    const printWindow = window.open("", "", "width=900,height=650");
+    printWindow.document.write(printContent.innerHTML);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
   };
 
+  const { patientName, NIC, phoneNumber, guardianName, imageSrc } =
+    formik.values;
+
   return (
-    <Container py={6} maxWidth="90%">
-      <Box bg="white" p={6} rounded="md" shadow="sm" w="100%">
-        <Heading textAlign="center" mb={8}>
+    <Container py={6} maxWidth="container.md">
+      <Box bg="white" p={6} rounded="md" shadow="sm">
+        <Heading textAlign="center" mb={6}>
           OPD Registration
         </Heading>
         {successMessage && (
@@ -114,39 +123,26 @@ const RegistrationForm = () => {
                   formik.errors.patientName && formik.touched.patientName
                 }
               >
-                <HStack w="100%">
-                  <FormLabel fontSize="sm" w="40%">
-                    <Icon as={FaUser} mr={2} /> Patient Name
-                  </FormLabel>
-                  <Input
-                    type="text"
-                    placeholder="Enter patient name"
-                    {...formik.getFieldProps("patientName")}
-                  />
-                </HStack>
+                <FormLabel htmlFor="patientName">
+                  <Icon as={FaUser} mr={2} /> Patient Name
+                </FormLabel>
+                <Input
+                  id="patientName"
+                  {...formik.getFieldProps("patientName")}
+                />
                 {formik.errors.patientName && formik.touched.patientName && (
-                  <Text color="red.500" fontSize="sm" mt={1}>
-                    {formik.errors.patientName}
-                  </Text>
+                  <Text color="red.500">{formik.errors.patientName}</Text>
                 )}
               </FormControl>
             </GridItem>
             <GridItem>
               <FormControl isInvalid={formik.errors.NIC && formik.touched.NIC}>
-                <HStack>
-                  <FormLabel fontSize="sm" w="40%">
-                    <Icon as={FaIdCard} mr={2} /> NIC
-                  </FormLabel>
-                  <Input
-                    type="text"
-                    placeholder="Enter NIC"
-                    {...formik.getFieldProps("NIC")}
-                  />
-                </HStack>
+                <FormLabel htmlFor="NIC">
+                  <Icon as={FaIdCard} mr={2} /> NIC
+                </FormLabel>
+                <Input id="NIC" {...formik.getFieldProps("NIC")} />
                 {formik.errors.NIC && formik.touched.NIC && (
-                  <Text color="red.500" fontSize="sm" mt={1}>
-                    {formik.errors.NIC}
-                  </Text>
+                  <Text color="red.500">{formik.errors.NIC}</Text>
                 )}
               </FormControl>
             </GridItem>
@@ -154,20 +150,12 @@ const RegistrationForm = () => {
               <FormControl
                 isInvalid={formik.errors.address && formik.touched.address}
               >
-                <HStack>
-                  <FormLabel fontSize="sm" w="40%">
-                    <Icon as={FaMapMarkerAlt} mr={2} /> Address
-                  </FormLabel>
-                  <Input
-                    type="text"
-                    placeholder="Enter address"
-                    {...formik.getFieldProps("address")}
-                  />
-                </HStack>
+                <FormLabel htmlFor="address">
+                  <Icon as={FaMapMarkerAlt} mr={2} /> Address
+                </FormLabel>
+                <Input id="address" {...formik.getFieldProps("address")} />
                 {formik.errors.address && formik.touched.address && (
-                  <Text color="red.500" fontSize="sm" mt={1}>
-                    {formik.errors.address}
-                  </Text>
+                  <Text color="red.500">{formik.errors.address}</Text>
                 )}
               </FormControl>
             </GridItem>
@@ -177,39 +165,26 @@ const RegistrationForm = () => {
                   formik.errors.guardianName && formik.touched.guardianName
                 }
               >
-                <HStack>
-                  <FormLabel fontSize="sm" w="40%">
-                    <Icon as={FaUserShield} mr={2} /> Guardian Name
-                  </FormLabel>
-                  <Input
-                    type="text"
-                    placeholder="Enter guardian name"
-                    {...formik.getFieldProps("guardianName")}
-                  />
-                </HStack>
+                <FormLabel htmlFor="guardianName">
+                  <Icon as={FaUserShield} mr={2} /> Guardian Name
+                </FormLabel>
+                <Input
+                  id="guardianName"
+                  {...formik.getFieldProps("guardianName")}
+                />
                 {formik.errors.guardianName && formik.touched.guardianName && (
-                  <Text color="red.500" fontSize="sm" mt={1}>
-                    {formik.errors.guardianName}
-                  </Text>
+                  <Text color="red.500">{formik.errors.guardianName}</Text>
                 )}
               </FormControl>
             </GridItem>
             <GridItem>
               <FormControl isInvalid={formik.errors.age && formik.touched.age}>
-                <HStack>
-                  <FormLabel fontSize="sm" w="40%">
-                    <Icon as={FaCalendarAlt} mr={2} /> Age
-                  </FormLabel>
-                  <Input
-                    type="text"
-                    placeholder="Enter age"
-                    {...formik.getFieldProps("age")}
-                  />
-                </HStack>
+                <FormLabel htmlFor="age">
+                  <Icon as={FaCalendarAlt} mr={2} /> Age
+                </FormLabel>
+                <Input id="age" {...formik.getFieldProps("age")} />
                 {formik.errors.age && formik.touched.age && (
-                  <Text color="red.500" fontSize="sm" mt={1}>
-                    {formik.errors.age}
-                  </Text>
+                  <Text color="red.500">{formik.errors.age}</Text>
                 )}
               </FormControl>
             </GridItem>
@@ -219,33 +194,41 @@ const RegistrationForm = () => {
                   formik.errors.phoneNumber && formik.touched.phoneNumber
                 }
               >
-                <HStack>
-                  <FormLabel fontSize="sm" w="40%">
-                    <Icon as={FaPhone} mr={2} /> Phone Number
-                  </FormLabel>
-                  <Input
-                    type="text"
-                    placeholder="Enter phone number"
-                    {...formik.getFieldProps("phoneNumber")}
-                  />
-                </HStack>
+                <FormLabel htmlFor="phoneNumber">
+                  <Icon as={FaPhone} mr={2} /> Phone Number
+                </FormLabel>
+                <Input
+                  id="phoneNumber"
+                  {...formik.getFieldProps("phoneNumber")}
+                />
                 {formik.errors.phoneNumber && formik.touched.phoneNumber && (
-                  <Text color="red.500" fontSize="sm" mt={1}>
-                    {formik.errors.phoneNumber}
-                  </Text>
+                  <Text color="red.500">{formik.errors.phoneNumber}</Text>
                 )}
               </FormControl>
             </GridItem>
           </Grid>
-          <HStack justify="flex-end" mt={6}>
-            <Button colorScheme="red" onClick={handleClear}>
+          <Box mt={4} display="flex" justifyContent="space-between">
+            <Button colorScheme="red" onClick={() => formik.resetForm()}>
               Clear All
             </Button>
-            <Button colorScheme="blue" type="submit" w="100px">
+            <Button colorScheme="blue" type="submit">
               Save
             </Button>
-          </HStack>
+            <Button colorScheme="green" onClick={handlePrint}>
+              Print
+            </Button>
+          </Box>
         </form>
+      </Box>
+      <Box>
+        <Print
+          ref={printRef}
+          patientName={patientName}
+          NIC={NIC}
+          phoneNumber={phoneNumber}
+          guardianName={guardianName}
+          imageSrc={imageSrc}
+        />
       </Box>
     </Container>
   );
