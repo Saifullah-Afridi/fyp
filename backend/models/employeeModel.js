@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-const EmployeeSchema = new mongoose.Schema({
+const bcryptjs = require("bcryptjs");
+const employeeSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, "Provide the doctor name"],
@@ -7,8 +8,17 @@ const EmployeeSchema = new mongoose.Schema({
     maxlength: [15, "The maximum name should be of 15 character long"],
     trim: true,
   },
+  NIC: {
+    type: String,
+    unique: true,
+    trim: true,
+    required: [true, "Please provide NIC"],
+    minlength: [13, "NIC should be  13 characters"],
+    maxlength: [13, "NIC should 13 characters"],
+  },
   phoneNumber: {
     type: String,
+    unique: true,
     required: [true, "Provide the phone Number"],
     minlength: [11, "The minimum name should be of 11 character long"],
     maxlength: [11, "The maximum name should be of 11 character long"],
@@ -17,7 +27,6 @@ const EmployeeSchema = new mongoose.Schema({
     type: String,
     required: [true, "Provide the phone Number"],
     minlength: [6, "The minimum length should be 6"],
-    maxlength: [true, "the maximum length should be 10"],
   },
   confirmPassword: {
     type: String,
@@ -36,7 +45,7 @@ const EmployeeSchema = new mongoose.Schema({
   occupation: {
     type: String,
     required: [true, "please provide speciality"],
-    enum: ["doctor", "recipient"],
+    enum: ["doctor", "receptionist", "pharmacist", "admin"],
   },
   sepeciality: {
     type: String,
@@ -44,6 +53,21 @@ const EmployeeSchema = new mongoose.Schema({
   },
 });
 
-const Employee = mongoose.model("Doctor", EmployeeSchema);
+employeeSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
+    return;
+  }
+  this.password = await bcryptjs.hash(this.password, 9);
+  this.confirmPassword = undefined;
+});
+
+employeeSchema.methods.comparePassword = async function (
+  enteredPassword,
+  userPassword
+) {
+  return await bcryptjs.compare(enteredPassword, userPassword);
+};
+
+const Employee = mongoose.model("Employee", employeeSchema);
 
 module.exports = Employee;
