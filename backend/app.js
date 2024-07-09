@@ -1,13 +1,13 @@
 const express = require("express");
 const app = express();
 const AppError = require("./utils/AppError");
-const globalErrorHandler = require("./middlewares/globalErrorHandler");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const patientRoutes = require("./routes/PatientRoutes");
-const employeeRoutes = require("./routes/employeesRoutes");
+const employeRoutes = require("./routes/employeeRoutes");
+const globalErrorHandler = require("./controllers/globalErrorHandler");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -22,15 +22,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 //routes
-app.get("/a", (req, res) => {
-  res.send("hello there");
-});
+app.get("/bout", () => {});
 app.use("/api/v1/patient", patientRoutes);
-app.use("/api/v1/employee", employeeRoutes);
+app.use("/api/v1/employee", employeRoutes);
 
 app.all("*", (req, res, next) => {
-  next(new AppError(`can not find ${req.originalUrl} on this server`, 404));
+  next(new AppError("Can not find " + req.originalUrl, 404));
 });
-app.use(globalErrorHandler);
 
+app.use(globalErrorHandler);
 module.exports = app;

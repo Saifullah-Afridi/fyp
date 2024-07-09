@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcryptjs = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const employeeSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -53,6 +54,8 @@ const employeeSchema = new mongoose.Schema({
   },
 });
 
+//only runs with save and ccreate does not work with findoneandupdate
+
 employeeSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return;
@@ -66,6 +69,13 @@ employeeSchema.methods.comparePassword = async function (
   userPassword
 ) {
   return await bcryptjs.compare(enteredPassword, userPassword);
+};
+
+employeeSchema.methods.generateJsonWebToken = async function () {
+  const token = await jwt.sign({ _id: this._id }, process.env.SECRET, {
+    expiresIn: "9 days",
+  });
+  return token;
 };
 
 const Employee = mongoose.model("Employee", employeeSchema);
