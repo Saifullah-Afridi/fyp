@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcryptjs = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { promisify } = require("util");
 const employeeSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -72,9 +73,13 @@ employeeSchema.methods.comparePassword = async function (
 };
 
 employeeSchema.methods.generateJsonWebToken = async function () {
-  const token = await jwt.sign({ _id: this._id }, process.env.SECRET, {
-    expiresIn: "9 days",
-  });
+  const token = await promisify(jwt.sign)(
+    { _id: this._id },
+    process.env.SECRET,
+    {
+      expiresIn: "9 days",
+    }
+  );
   return token;
 };
 

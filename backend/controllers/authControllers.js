@@ -11,7 +11,7 @@ const createEmployee = async (req, res, next) => {
       console.log("hello");
       return next(new AppError("Employee already exist With This NIC", 400));
     }
-    console.log("hello from outside");
+
     const employee = await Employee.create(req.body);
     res.status(201).json({
       status: "success",
@@ -22,8 +22,9 @@ const createEmployee = async (req, res, next) => {
   }
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
+    console.log("hello");
     const { NIC, password } = req.body;
     if (!NIC || !password) {
       return next(new AppError("please provide NIC and Password"));
@@ -36,12 +37,27 @@ const login = async (req, res) => {
       return next(new AppError("Please provide correct NIC and Password", 400));
     }
     const token = await employee.generateJsonWebToken();
-    res.status(200).json({
-      status: "success",
-      message: "You are logged in",
-      employee,
-      token,
+    console.log(token);
+    res.cookie("auth_token", token, {
+      httpOnly: true,
+      secure: false,
+      maxAge: 1000 * 60 * 60,
     });
+    console.log(token);
+
+    res
+      .status(200)
+      .cookie("auth_token", token, {
+        httpOnly: true,
+        secure: false,
+        maxAge: 1000 * 60 * 60,
+      })
+      .json({
+        status: "success",
+        message: "You are logged in",
+        employee,
+        token,
+      });
   } catch (error) {
     return next(new AppError(error.message));
   }

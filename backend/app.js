@@ -1,14 +1,13 @@
 const express = require("express");
 const app = express();
 const AppError = require("./utils/AppError");
-const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const patientRoutes = require("./routes/PatientRoutes");
 const employeRoutes = require("./routes/employeeRoutes");
 const globalErrorHandler = require("./controllers/globalErrorHandler");
-
+const cookieParser = require("cookie-parser");
 app.use(express.json());
 app.use(cookieParser());
 app.use(
@@ -20,7 +19,7 @@ app.use(
 );
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan("dev"));
-
+app.use(cookieParser());
 //routes
 app.get("/bout", () => {});
 app.use("/api/v1/patient", patientRoutes);
