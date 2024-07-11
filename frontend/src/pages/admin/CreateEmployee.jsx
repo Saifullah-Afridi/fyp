@@ -33,17 +33,16 @@ const CreateEmployee = () => {
 
   const formik = useFormik({
     initialValues: {
-      patientName: "",
+      name: "",
       NIC: "",
       address: "",
-      guardianName: "",
-      age: "",
+      occupation: "",
       phoneNumber: "",
       password: "",
       confirmPassword: "",
     },
     validationSchema: Yup.object({
-      patientName: Yup.string()
+      name: Yup.string()
         .required("Required")
         .min(3, "Minimum length should be 3 characters")
         .max(15, "Maximum length should be 15 characters"),
@@ -53,14 +52,10 @@ const CreateEmployee = () => {
       address: Yup.string()
         .required("Required")
         .min(4, "Minimum length should be 10 characters"),
-      guardianName: Yup.string()
+      occupation: Yup.string()
         .required("Required")
-        .min(3, "Minimum length should be 3 characters")
+        .min(4, "Minimum length should be 3 characters")
         .max(15, "Maximum length should be 15 characters"),
-      age: Yup.number()
-        .required("Required")
-        .positive("Age must be a positive number")
-        .integer("Age must be an integer"),
       phoneNumber: Yup.string()
         .required("Required")
         .matches(
@@ -78,9 +73,9 @@ const CreateEmployee = () => {
     }),
     onSubmit: (values) => {
       axios
-        .post("http://localhost:3000/api/v1/patient", values)
+        .post("http://localhost:3000/api/v1/employee", values)
         .then((response) => {
-          setSuccessMessage("Patient registered successfully!");
+          setSuccessMessage("Employee registered successfully!");
           setErrorMessage("");
         })
         .catch((error) => {
@@ -94,7 +89,7 @@ const CreateEmployee = () => {
     <Container py={6} maxWidth="container.md">
       <Box bg="white" p={6} rounded="md" shadow="sm">
         <Heading textAlign="center" mb={6}>
-          OPD Registration
+          Create Employee
         </Heading>
         {successMessage && (
           <Alert status="success" mb={4}>
@@ -112,19 +107,14 @@ const CreateEmployee = () => {
           <Grid templateColumns="repeat(2, 1fr)" gap={6}>
             <GridItem>
               <FormControl
-                isInvalid={
-                  formik.errors.patientName && formik.touched.patientName
-                }
+                isInvalid={formik.errors.name && formik.touched.name}
               >
-                <FormLabel htmlFor="patientName">
-                  <Icon as={FaUser} mr={2} /> Patient Name
+                <FormLabel htmlFor="name">
+                  <Icon as={FaUser} mr={2} /> Employee Name
                 </FormLabel>
-                <Input
-                  id="patientName"
-                  {...formik.getFieldProps("patientName")}
-                />
-                {formik.errors.patientName && formik.touched.patientName && (
-                  <Text color="red.500">{formik.errors.patientName}</Text>
+                <Input id="name" {...formik.getFieldProps("name")} />
+                {formik.errors.name && formik.touched.name && (
+                  <Text color="red.500">{formik.errors.name}</Text>
                 )}
               </FormControl>
             </GridItem>
@@ -152,35 +142,7 @@ const CreateEmployee = () => {
                 )}
               </FormControl>
             </GridItem>
-            <GridItem>
-              <FormControl
-                isInvalid={
-                  formik.errors.guardianName && formik.touched.guardianName
-                }
-              >
-                <FormLabel htmlFor="guardianName">
-                  <Icon as={FaUserShield} mr={2} /> Guardian Name
-                </FormLabel>
-                <Input
-                  id="guardianName"
-                  {...formik.getFieldProps("guardianName")}
-                />
-                {formik.errors.guardianName && formik.touched.guardianName && (
-                  <Text color="red.500">{formik.errors.guardianName}</Text>
-                )}
-              </FormControl>
-            </GridItem>
-            <GridItem>
-              <FormControl isInvalid={formik.errors.age && formik.touched.age}>
-                <FormLabel htmlFor="age">
-                  <Icon as={FaCalendarAlt} mr={2} /> Age
-                </FormLabel>
-                <Input id="age" {...formik.getFieldProps("age")} />
-                {formik.errors.age && formik.touched.age && (
-                  <Text color="red.500">{formik.errors.age}</Text>
-                )}
-              </FormControl>
-            </GridItem>
+
             <GridItem>
               <FormControl
                 isInvalid={
@@ -232,7 +194,44 @@ const CreateEmployee = () => {
                   )}
               </FormControl>
             </GridItem>
+            <GridItem>
+              <FormControl
+                isInvalid={
+                  formik.errors.occupation && formik.touched.occupation
+                }
+              >
+                <FormLabel htmlFor="occupation">
+                  <Icon as={FaUserShield} mr={2} /> Occupation
+                </FormLabel>
+                <Input
+                  id="occupation"
+                  {...formik.getFieldProps("occupation")}
+                />
+                {formik.errors.occupation && formik.touched.occupation && (
+                  <Text color="red.500">{formik.errors.occupation}</Text>
+                )}
+              </FormControl>
+            </GridItem>
+            <GridItem>
+              <FormControl
+                isInvalid={
+                  formik.errors.speciality && formik.touched.speciality
+                }
+              >
+                <FormLabel htmlFor="speciality">
+                  <Icon as={FaPhone} mr={2} /> Speciality
+                </FormLabel>
+                <Input
+                  id="speciality"
+                  {...formik.getFieldProps("speciality")}
+                />
+                {formik.errors.speciality && formik.touched.speciality && (
+                  <Text color="red.500">{formik.errors.speciality}</Text>
+                )}
+              </FormControl>
+            </GridItem>
           </Grid>
+
           <Box mt={4} display="flex" justifyContent="flex-end" gap="10px">
             <Button colorScheme="red" onClick={() => formik.resetForm()}>
               Clear All
