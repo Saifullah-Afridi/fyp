@@ -3,28 +3,27 @@ import { Button, Container, Heading, HStack, Text } from "@chakra-ui/react";
 import { Outlet, useNavigate } from "react-router-dom";
 const ReceptionistLayout = () => {
   const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [role, setRole] = useState("");
+  const [employee, setEmployee] = useState(
+    JSON.parse(localStorage.getItem("user")) || null
+  );
+
   useEffect(() => {
-    let employee = localStorage.getItem("user");
-    employee = JSON.parse(employee);
-    if (employee) {
-      console.log(employee);
-      setName(employee.name);
-      setRole(employee.occupation);
-    }
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    setEmployee(storedUser);
+  }, [employee]);
+
+  useEffect(() => {
     if (!employee) {
       navigate("/login");
+    } else {
+      const { occupation } = employee;
+      if (occupation === "admin") {
+        navigate("/admin");
+      } else if (occupation === "doctor") {
+        navigate("/doctor");
+      }
     }
-  }, []);
-  useEffect(() => {
-    if (role === "admin") {
-      navigate("/admin");
-    }
-    if (role === "doctor") {
-      navigate("/doctor");
-    }
-  });
+  }, [employee]);
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate("/login");
@@ -42,7 +41,7 @@ const ReceptionistLayout = () => {
         <Heading>HMS</Heading>
         <HStack gap="15px">
           <Text fontSize="18px" color="gray.700">
-            Reciption: {name}
+            Reciption: {employee?.name}
           </Text>
           <Button colorScheme="blue" onClick={handleLogout}>
             Log out
