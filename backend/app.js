@@ -21,7 +21,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(cookieParser());
 //routes
-app.get("/bout", () => {});
 app.use("/api/v1/patient", patientRoutes);
 app.use("/api/v1/employee", employeRoutes);
 
