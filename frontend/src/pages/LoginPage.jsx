@@ -31,10 +31,8 @@ const LoginPage = () => {
       password: "",
     },
     validationSchema: Yup.object({
-      NIC: Yup.string()
-        .required("Required")
-        .min(4, "The minimum length of password should be 4"),
-      password: Yup.string().required("Required"),
+      NIC: Yup.string().min(4, "The minimum length of password should be 4"),
+      password: Yup.string(),
     }),
     onSubmit: (values) => {
       axios
@@ -51,14 +49,14 @@ const LoginPage = () => {
             navigate("/testadmin");
           }
           if (userRole === "receptionist") {
-            navigate("/testreceptionist");
+            navigate("/receptionist");
           }
           setSuccessMessage("Patient Login");
           setErrorMessage("");
         })
         .catch((error) => {
           console.log(error);
-          setErrorMessage("Failed to register patient. Please try again.");
+          setErrorMessage(error.response.data.message);
           setSuccessMessage("");
         });
     },
@@ -89,7 +87,7 @@ const LoginPage = () => {
           )}
           <form onSubmit={formik.handleSubmit}>
             <Stack spacing={10}>
-              <FormControl>
+              <FormControl isInvalid={formik.errors.NIC && formik.touched.NIC}>
                 <FormLabel>NIC</FormLabel>
                 <Input
                   type=""
@@ -97,9 +95,15 @@ const LoginPage = () => {
                   name="NIC"
                   value={formik.values.NIC}
                   onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                 />
+                {formik.errors.NIC && formik.touched.NIC && (
+                  <Text color="red.500">{formik.errors.NIC}</Text>
+                )}
               </FormControl>
-              <FormControl>
+              <FormControl
+                isInvalid={formik.errors.password && formik.touched.password}
+              >
                 <FormLabel>Password</FormLabel>
                 <Input
                   type="password"
@@ -107,7 +111,11 @@ const LoginPage = () => {
                   name="password"
                   value={formik.values.password}
                   onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                 />
+                {formik.errors.password && formik.touched.password && (
+                  <Text color="red.500">{formik.errors.password}</Text>
+                )}
               </FormControl>
               <Stack spacing={10}>
                 <Button

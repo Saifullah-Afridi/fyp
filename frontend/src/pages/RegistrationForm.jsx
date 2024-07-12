@@ -98,9 +98,9 @@ const RegistrationForm = () => {
     formik.values;
 
   return (
-    <Container py={6} maxWidth="container.md">
-      <Box bg="white" p={6} rounded="md" shadow="sm">
-        <Heading textAlign="center" mb={6}>
+    <Container maxWidth="100%">
+      <Box bg="white" p={2} rounded="md" shadow="sm">
+        <Heading textAlign="center" mb={4}>
           OPD Registration
         </Heading>
         {successMessage && (
