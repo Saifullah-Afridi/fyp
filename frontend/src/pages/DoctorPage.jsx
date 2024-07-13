@@ -22,57 +22,28 @@ import {
   Textarea,
   VStack,
   IconButton,
-  Grid,
-  GridItem,
 } from "@chakra-ui/react";
 import { Formik, FieldArray, Form } from "formik";
-import { FaTrash } from "react-icons/fa";
 
-const DoctorPage = () => {
-  const [patients, setPatients] = useState([]);
-  const [totalPatients, setTotalPatients] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const DoctorPage = ({ patients, setPatients }) => {
   const [currentPatient, setCurrentPatient] = useState(null);
 
   useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:3000/api/v1/patient"
-        );
-        const today = new Date().toISOString().split("T")[0];
-        const todayPatients = response.data.patients.filter((patient) => {
-          const registrationDate = new Date(patient.createdAt);
-          return (
-            registrationDate instanceof Date &&
-            !isNaN(registrationDate) &&
-            registrationDate.toISOString().split("T")[0] === today
-          );
-        });
-
-        if (todayPatients.length > 0) {
-          setCurrentPatient(todayPatients[0]);
-          setPatients(todayPatients.slice(1));
-          setTotalPatients(todayPatients.length - 1);
-        }
-        setLoading(false);
-      } catch (error) {
-        setError("Error fetching patients");
-        console.error("Error fetching patients:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchPatients();
-  }, []);
+    if (patients.length > 0) {
+      setCurrentPatient(patients[0]);
+    }
+  }, [patients]);
 
   const handleNextPatient = () => {
     setPatients((prevPatients) => {
-      const nextPatients = prevPatients.slice(1);
-      setCurrentPatient(prevPatients[0]);
-      setTotalPatients(nextPatients.length);
-      return nextPatients;
+      if (prevPatients.length > 1) {
+        const [current, ...rest] = prevPatients;
+        setCurrentPatient(rest[0]);
+        return rest;
+      } else {
+        setCurrentPatient(null);
+        return [];
+      }
     });
   };
 
@@ -89,83 +60,50 @@ const DoctorPage = () => {
             Patients in Pending
           </Heading>
           <Text fontSize="18px" textColor="blue.400">
-            Total Patients: {totalPatients}
+            Total Patients: {patients.length}
           </Text>
         </HStack>
-        {loading ? (
+        {patients.length === 0 ? (
           <Spinner size="xl" />
-        ) : error ? (
-          <Alert status="error">
-            <AlertIcon />
-            {error}
-          </Alert>
         ) : (
           <>
-            <Table variant="unstyled" colorScheme="teal" shadow="sm" mb="20px">
-              <Thead>
-                <Tr>
-                  <Th>Serial Number</Th>
-                  <Th>Patient Name</Th>
-                  <Th>Time of Registration</Th>
-                  <Th>Patient ID</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {patients.map((patient, index) => (
-                  <Tr key={patient._id}>
-                    <Td>{index + 1}</Td>
-                    <Td>{patient.patientName}</Td>
-                    <Td>{new Date(patient.createdAt).toLocaleTimeString()}</Td>
-                    <Td>{patient._id}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-            {/* Current patient details */}
+            <Button
+              colorScheme="blue"
+              onClick={handleNextPatient}
+              mb="20px"
+              isDisabled={!currentPatient}
+            >
+              Next Patient
+            </Button>
             {currentPatient && (
               <Box bg="gray.50" p={6} rounded="md" shadow="sm">
                 <Heading fontSize="24px" mb="4">
                   Current Patient Details
                 </Heading>
-                <Grid
-                  templateColumns="repeat(2, 1fr)"
-                  gap={6}
-                  mb="1rem"
-                  px="20px"
-                >
-                  <GridItem>
-                    <HStack mb="1rem">
-                      <Text fontWeight="bold">Name :</Text>
-                      <Text>{currentPatient.patientName}</Text>
-                    </HStack>
-                    <HStack mb="1rem">
-                      <Text fontWeight="bold">Age :</Text>
-                      <Text>{currentPatient.age}</Text>
-                    </HStack>
-                  </GridItem>
-                  <GridItem>
-                    <HStack mb="1rem">
-                      <Text fontWeight="bold"> Blood Group :</Text>
-                      <Text>{currentPatient.bloodGroup}</Text>
-                    </HStack>
-                    <HStack mb="1rem">
-                      <Text fontWeight="bold">Address:</Text>
-                      <Text>{currentPatient.address}</Text>
-                    </HStack>
-                  </GridItem>
-                </Grid>
+                <Text>
+                  <strong>Name:</strong> {currentPatient.patientName}
+                </Text>
+                <Text>
+                  <strong>Age:</strong> {currentPatient.age}
+                </Text>
+                <Text>
+                  <strong>Blood Group:</strong> {currentPatient.bloodGroup}
+                </Text>
+                <Text>
+                  <strong>Address:</strong> {currentPatient.address}
+                </Text>
 
                 <Formik
                   initialValues={{
                     prescription: "",
-                    tests: [""],
-                    medicines: [{ name: "", dosage: "", days: "" }],
+                    note: "",
+                    medicines: [""],
                   }}
                   onSubmit={handleSubmit}
                 >
                   {({ values, handleChange }) => (
                     <Form>
-                      <VStack spacing={4} w="100%">
+                      <VStack spacing={4} align="stretch">
                         <FormControl>
                           <FormLabel>Doctor's Prescription</FormLabel>
                           <Textarea
@@ -176,20 +114,29 @@ const DoctorPage = () => {
                         </FormControl>
 
                         <FormControl>
-                          <FormLabel>Tests Required</FormLabel>
-                          <FieldArray name="tests">
+                          <FormLabel>Doctor's Note</FormLabel>
+                          <Textarea
+                            name="note"
+                            value={values.note}
+                            onChange={handleChange}
+                          />
+                        </FormControl>
+
+                        <FormControl>
+                          <FormLabel>Medicines</FormLabel>
+                          <FieldArray name="medicines">
                             {({ push, remove }) => (
                               <VStack spacing={2}>
-                                {values.tests.map((test, index) => (
+                                {values.medicines.map((medicine, index) => (
                                   <HStack key={index} w="100%">
                                     <Input
-                                      name={`tests[${index}]`}
-                                      value={test}
+                                      name={`medicines[${index}]`}
+                                      value={medicine}
                                       onChange={handleChange}
-                                      placeholder="Enter test"
+                                      placeholder="Enter medicine"
                                     />
                                     <IconButton
-                                      icon={<FaTrash />}
+                                      icon={<i className="fas fa-minus" />}
                                       onClick={() => remove(index)}
                                       colorScheme="red"
                                       variant="outline"
@@ -201,71 +148,16 @@ const DoctorPage = () => {
                                   colorScheme="blue"
                                   variant="outline"
                                 >
-                                  Add Test
-                                </Button>
-                              </VStack>
-                            )}
-                          </FieldArray>
-                        </FormControl>
-
-                        <FormControl>
-                          <FormLabel>Medicines</FormLabel>
-                          <FieldArray name="medicines">
-                            {({ push, remove }) => (
-                              <VStack spacing={2}>
-                                {values.medicines.map((medicine, index) => (
-                                  <HStack key={index} w="100%">
-                                    <Input
-                                      name={`medicines[${index}].name`}
-                                      value={medicine.name}
-                                      onChange={handleChange}
-                                      placeholder="Medicine Name"
-                                    />
-                                    <Input
-                                      name={`medicines[${index}].dosage`}
-                                      value={medicine.dosage}
-                                      onChange={handleChange}
-                                      placeholder="Dosage per Day"
-                                    />
-                                    <Input
-                                      name={`medicines[${index}].days`}
-                                      value={medicine.days}
-                                      onChange={handleChange}
-                                      placeholder="Total Days"
-                                    />
-                                    <IconButton
-                                      icon={<FaTrash />}
-                                      onClick={() => remove(index)}
-                                      colorScheme="red"
-                                      variant="outline"
-                                    />
-                                  </HStack>
-                                ))}
-                                <Button
-                                  onClick={() =>
-                                    push({ name: "", dosage: "", days: "" })
-                                  }
-                                  colorScheme="blue"
-                                  variant="outline"
-                                >
                                   Add Medicine
                                 </Button>
                               </VStack>
                             )}
                           </FieldArray>
                         </FormControl>
-                        <HStack alignItems="center" justifyContent="flex-end">
-                          <Button type="submit" colorScheme="green">
-                            Submit
-                          </Button>
-                          <Button
-                            colorScheme="blue"
-                            onClick={handleNextPatient}
-                            isDisabled={patients.length === 0}
-                          >
-                            Next Patient
-                          </Button>
-                        </HStack>
+
+                        <Button type="submit" colorScheme="green">
+                          Submit
+                        </Button>
                       </VStack>
                     </Form>
                   )}

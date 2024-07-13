@@ -13,8 +13,35 @@ import Employees from "./pages/admin/Employees";
 
 import ReceptionistLayout from "./layouts/Receptionist/ReceptionistLayout";
 import DoctorPage from "./pages/DoctorPage";
+import PatientList from "./pages/PatientList";
 
 const App = () => {
+  const [patients, setPatients] = useState([]);
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3000/api/v1/patient"
+        );
+        const today = new Date().toISOString().split("T")[0];
+        const todayPatients = response.data.patients.filter((patient) => {
+          const registrationDate = new Date(patient.createdAt);
+          return (
+            registrationDate instanceof Date &&
+            !isNaN(registrationDate) &&
+            registrationDate.toISOString().split("T")[0] === today
+          );
+        });
+        setPatients(todayPatients);
+      } catch (error) {
+        console.error("Error fetching patients:", error);
+      }
+    };
+
+    fetchPatients();
+  }, []);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -32,7 +59,14 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/testadmin" element={<TestAdmin />} />
         <Route path="/testreceptionist" element={<Testreceptionist />} />
-        <Route path="/doctor" element={<DoctorPage />} />
+        <Route
+          path="/doctor"
+          element={<DoctorPage patients={patients} setPatients={setPatients} />}
+        />
+        <Route
+          path="/patient-list"
+          element={<PatientList patients={patients} />}
+        />
       </Routes>
     </BrowserRouter>
   );
