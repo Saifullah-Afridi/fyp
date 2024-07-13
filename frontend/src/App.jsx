@@ -12,6 +12,7 @@ import AdminLayout from "./layouts/adminLayout/AdminLayout";
 import Employees from "./pages/admin/Employees";
 
 import ReceptionistLayout from "./layouts/Receptionist/ReceptionistLayout";
+import DoctorPage from "./pages/DoctorPage";
 
 const App = () => {
   return (
@@ -31,6 +32,7 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/testadmin" element={<TestAdmin />} />
         <Route path="/testreceptionist" element={<Testreceptionist />} />
+        <Route path="/doctor" element={<DoctorPage />} />
       </Routes>
     </BrowserRouter>
   );
