@@ -4,12 +4,9 @@ import { Outlet } from "react-router-dom";
 
 const adminLayout = () => {
   return (
-    <HStack justifyContent="space-between">
-      <Heading>Main Bar</Heading>
-      <Container>
-        <Outlet></Outlet>
-      </Container>
-    </HStack>
+    <Container maxW="90%">
+      <Outlet></Outlet>
+    </Container>
   );
 };
 

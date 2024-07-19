@@ -1,20 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   Heading,
   Box,
   Container,
   Text,
   HStack,
   Spinner,
-  Alert,
-  AlertIcon,
   Button,
   Input,
   FormControl,
@@ -24,6 +16,7 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { Formik, FieldArray, Form } from "formik";
+import Header from "../components/Header";
 
 const DoctorPage = ({ patients, setPatients }) => {
   const [currentPatient, setCurrentPatient] = useState(null);
@@ -53,8 +46,9 @@ const DoctorPage = ({ patients, setPatients }) => {
   };
 
   return (
-    <Container py={6} maxWidth="95%">
-      <Box bg="white" p={6} rounded="md" shadow="sm" w="100%">
+    <Container maxWidth="95%">
+      <Box bg="white" p={2} rounded="md" shadow="sm" w="100%">
+        <Header />
         <HStack alignItems="center" gap="4rem" mb="1rem" w="100%">
           <Heading fontSize="30px" mb="20px" textColor="blue.400">
             Patients in Pending

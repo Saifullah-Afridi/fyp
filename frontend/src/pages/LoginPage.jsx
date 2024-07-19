@@ -46,7 +46,10 @@ const LoginPage = () => {
             userRole = user.occupation;
           }
           if (userRole === "admin") {
-            navigate("/testadmin");
+            navigate("/admin");
+          }
+          if (userRole === "doctor") {
+            navigate("/doctor");
           }
           if (userRole === "receptionist") {
             navigate("/receptionist");
