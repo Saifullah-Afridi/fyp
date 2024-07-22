@@ -24,7 +24,7 @@ const createEmployee = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    console.log("hello");
+    console.log(req.body);
     const { NIC, password } = req.body;
     if (!NIC || !password) {
       return next(new AppError("please provide NIC and Password"));
@@ -66,27 +66,20 @@ const login = async (req, res, next) => {
 const protectedRoutes = async (req, res, next) => {
   try {
     let token;
-    console.log(req.headers.authorization);
-    //if the user have token or not
+
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith("Bearer")
     ) {
-      console.log("here");
       token = req.headers.authorization.split(" ")[1];
     }
-    console.log(token);
     if (!token) {
       return next(new AppError("Please login", 400));
     }
 
-    //if the token is correct or modified
-
     const payload = await jwt.verify(token, process.env.SECRET);
 
-    const employee = await Employee.findOne({
-      _id: payload._id,
-    });
+    const employee = await Employee.findById(payload._id);
     if (!employee) {
       return next(
         new AppError("The token belong to the employee does not exist", 400)

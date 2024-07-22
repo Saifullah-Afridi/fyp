@@ -15,20 +15,20 @@ import {
   Spinner,
   Alert,
   AlertIcon,
-  Button,
 } from "@chakra-ui/react";
 
 const WaitingRoom = () => {
   const [patients, setPatients] = useState([]);
-  const [totalPatients, setTotalPatients] = useState(0);
+  const [currentPatient, setCurrentPatient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPatient, setCurrentPatient] = useState(null);
 
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/api/v1/patient");
+        const response = await axios.get(
+          "http://localhost:3000/api/v1/patient"
+        );
         const today = new Date().toISOString().split("T")[0];
         const todayPatients = response.data.patients.filter((patient) => {
           const registrationDate = new Date(patient.createdAt);
@@ -39,11 +39,8 @@ const WaitingRoom = () => {
           );
         });
 
-        if (todayPatients.length > 0) {
-          setCurrentPatient(todayPatients[0]);
-          setPatients(todayPatients.slice(1));
-          setTotalPatients(todayPatients.length - 1);
-        }
+        setPatients(todayPatients.slice(1));
+        setCurrentPatient(todayPatients[0]);
         setLoading(false);
       } catch (error) {
         setError("Error fetching patients");
@@ -53,31 +50,10 @@ const WaitingRoom = () => {
     };
 
     fetchPatients();
+
+    const interval = setInterval(fetchPatients, 5000); // Poll every 5 seconds
+    return () => clearInterval(interval); // Clean up the interval on component unmount
   }, []);
-
-  const handleNextPatient = () => {
-    setPatients((prevPatients) => {
-      const nextPatients = prevPatients.slice(1);
-      setCurrentPatient(prevPatients[0]);
-      setTotalPatients(nextPatients.length);
-      announcePatient(prevPatients[0]);
-      return nextPatients;
-    });
-  };
-
-  const announcePatient = (patient) => {
-    if (patient) {
-      const msg = new SpeechSynthesisUtterance();
-      msg.text = `${patient.patientName}, guardian: ${patient.guardianName}, ${patient.patientName}, guardian: ${patient.guardianName}, ${patient.patientName}, guardian: ${patient.guardianName}`;
-      window.speechSynthesis.speak(msg);
-    }
-  };
-
-  useEffect(() => {
-    if (currentPatient) {
-      announcePatient(currentPatient);
-    }
-  }, [currentPatient]);
 
   return (
     <Container py={6} maxWidth="95%">
@@ -87,7 +63,7 @@ const WaitingRoom = () => {
             Patients in Pending
           </Heading>
           <Text fontSize="18px" textColor="blue.400">
-            Total Patients: {totalPatients}
+            Total Patients: {patients.length}
           </Text>
         </HStack>
         {loading ? (
@@ -98,56 +74,26 @@ const WaitingRoom = () => {
             {error}
           </Alert>
         ) : (
-          <>
-            <Button
-              colorScheme="blue"
-              onClick={handleNextPatient}
-              mb="20px"
-              isDisabled={patients.length === 0}
-            >
-              Next Patient
-            </Button>
-            <Table variant="striped" colorScheme="teal" shadow="sm" mb="20px">
-              <Thead>
-                <Tr>
-                  <Th>Serial Number</Th>
-                  <Th>Patient Name</Th>
-                  <Th>Time of Registration</Th>
-                  <Th>Patient ID</Th>
+          <Table variant="striped" colorScheme="teal" shadow="sm" mb="20px">
+            <Thead>
+              <Tr>
+                <Th>Serial Number</Th>
+                <Th>Patient Name</Th>
+                <Th>Time of Registration</Th>
+                <Th>Patient ID</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {patients.map((patient, index) => (
+                <Tr key={patient._id}>
+                  <Td>{index + 1}</Td>
+                  <Td>{patient.patientName}</Td>
+                  <Td>{new Date(patient.createdAt).toLocaleTimeString()}</Td>
+                  <Td>{patient._id}</Td>
                 </Tr>
-              </Thead>
-              <Tbody>
-                {patients.map((patient, index) => (
-                  <Tr key={patient._id}>
-                    <Td>{index + 1}</Td>
-                    <Td>{patient.patientName}</Td>
-                    <Td>{new Date(patient.createdAt).toLocaleTimeString()}</Td>
-                    <Td>{patient._id}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-            {/* Current patient details */}
-            {currentPatient && (
-              <Box bg="gray.50" p={6} rounded="md" shadow="sm">
-                <Heading fontSize="24px" mb="4">
-                  Current Patient Details
-                </Heading>
-                <Text>
-                  <strong>Name:</strong> {currentPatient.patientName}
-                </Text>
-                <Text>
-                  <strong>Age:</strong> {currentPatient.age}
-                </Text>
-                <Text>
-                  <strong>Blood Group:</strong> {currentPatient.bloodGroup}
-                </Text>
-                <Text>
-                  <strong>Address:</strong> {currentPatient.address}
-                </Text>
-              </Box>
-            )}
-          </>
+              ))}
+            </Tbody>
+          </Table>
         )}
       </Box>
     </Container>

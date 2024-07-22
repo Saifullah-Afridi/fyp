@@ -8,9 +8,11 @@ const {
   testController,
   isAdmin,
 } = require("../controllers/authControllers");
+const { getAllEmployee } = require("../controllers/employeeControllers");
 
 //only admin can create new employee
 //later protectedRoutes sepecific to admin
+router.get("/", protectedRoutes, isAdmin, getAllEmployee);
 router.post("/", createEmployee);
 router.post("/login", login);
 router.get("/testing", protectedRoutes, isAdmin, testController);

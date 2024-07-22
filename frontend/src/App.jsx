@@ -12,6 +12,8 @@ import ReceptionistLayout from "./layouts/Receptionist/ReceptionistLayout";
 import DoctorPage from "./pages/DoctorPage";
 import PatientList from "./pages/PatientList";
 import axios from "axios";
+import WaitingRoom from "./pages/WaitingRoom";
+import Doctors from "./pages/admin/Doctors";
 
 const App = () => {
   const [patients, setPatients] = useState([]);
@@ -53,7 +55,8 @@ const App = () => {
         {/* admin routes  */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<CreateEmployee />} />
-          <Route path="employees" element={<Employees />} />
+          <Route path="create-employee" element={<CreateEmployee />} />
+          <Route path="doctors" element={<Doctors />} />
         </Route>
         <Route path="/login" element={<LoginPage />} />
         <Route
@@ -64,6 +67,7 @@ const App = () => {
           path="/patient-list"
           element={<PatientList patients={patients} />}
         />
+        <Route path="/list" element={<WaitingRoom />} />
       </Routes>
     </BrowserRouter>
   );

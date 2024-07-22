@@ -86,8 +86,8 @@ const CreateEmployee = () => {
   });
 
   return (
-    <Container py={6} maxWidth="container.md">
-      <Box bg="white" p={6} rounded="md" shadow="sm">
+    <Container minWidth="full">
+      <Box bg="white" p={2} rounded="md" shadow="sm" w="100%">
         <Heading textAlign="center" mb={6}>
           Create Employee
         </Heading>

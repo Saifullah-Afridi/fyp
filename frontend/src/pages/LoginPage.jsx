@@ -38,8 +38,9 @@ const LoginPage = () => {
       axios
         .post("http://localhost:3000/api/v1/employee/login", values)
         .then((response) => {
-          console.log(response);
           localStorage.setItem("user", JSON.stringify(response.data.employee));
+          console.log(response);
+          localStorage.setItem("token", JSON.stringify(response.data.token));
           const user = JSON.parse(localStorage.getItem("user"));
           let userRole;
           if (user) {

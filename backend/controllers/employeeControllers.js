@@ -62,7 +62,7 @@ const getSingleEmployee = async (req, res, next) => {
   }
 };
 const getAllEmployee = async (req, res, next) => {
-  const employees = await Employee.find({});
+  const employees = await Employee.find();
   if (!employees) {
     return next(new AppError("No is found", 404));
   }
@@ -80,4 +80,6 @@ const deleteEmployee = async (req, res, next) => {
     message: "Employee is deleted",
   });
 };
-module.exports = { createEmployee, login };
+
+const getAllDocotrs = async (req, res, next) => {};
+module.exports = { createEmployee, login, getAllEmployee };
