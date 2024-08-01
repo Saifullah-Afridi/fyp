@@ -14,6 +14,7 @@ import PatientList from "./pages/PatientList";
 import axios from "axios";
 import WaitingRoom from "./pages/WaitingRoom";
 import Doctors from "./pages/admin/Doctors";
+import EditEmployee from "./components/EditEmployee";
 
 const App = () => {
   const [patients, setPatients] = useState([]);
@@ -47,22 +48,21 @@ const App = () => {
       <Routes>
         <Route index element={<LoginPage />} />
         <Route path="/log-in" element={<LoginPage />} />
-
         <Route path="/receptionist" element={<ReceptionistLayout />}>
           <Route index element={<RegistrationForm />} />
         </Route>
-
         {/* admin routes  */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<CreateEmployee />} />
           <Route path="create-employee" element={<CreateEmployee />} />
-          <Route path="doctors" element={<Doctors />} />
+          <Route path="doctors" element={<Doctors />}></Route>
         </Route>
         <Route path="/login" element={<LoginPage />} />
         <Route
           path="/doctor"
           element={<DoctorPage patients={patients} setPatients={setPatients} />}
         />
+        <Route path="edit-employee/:id" element={<EditEmployee />} />{" "}
         <Route
           path="/patient-list"
           element={<PatientList patients={patients} />}

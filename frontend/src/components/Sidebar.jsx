@@ -26,31 +26,7 @@ export const Sidebar = () => {
           _hover={{ bg: "gray.100" }}
         >
           {" "}
-          Doctors
-        </Text>
-      </Link>
-      <Link to="/doctor-employees">
-        <Text
-          fontSize="18px"
-          size="30px"
-          fontWeight="bold"
-          p="10px"
-          _hover={{ bg: "gray.100" }}
-        >
-          {" "}
-          Reciptanist
-        </Text>
-      </Link>
-      <Link to="/doctor-employees">
-        <Text
-          fontSize="18px"
-          size="30px"
-          fontWeight="bold"
-          p="10px"
-          _hover={{ bg: "gray.100" }}
-        >
-          {" "}
-          Doctors
+          Employees
         </Text>
       </Link>
     </VStack>

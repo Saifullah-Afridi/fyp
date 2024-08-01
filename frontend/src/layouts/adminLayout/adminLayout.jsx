@@ -30,15 +30,25 @@ const adminLayout = () => {
   return (
     <Grid
       width="100%"
-      templateColumns="250px 3fr"
-      templateRows="1fr 1fr"
+      templateColumns="250px 1fr"
+      templateRows="1fr"
       columnGap="5px"
+      height="100vh"
+      overflow="hidden"
     >
-      <GridItem bg="teal.100" h="100vh">
+      <GridItem
+        bg="teal.100"
+        position="sticky"
+        top="0"
+        height="100vh"
+        overflowY="auto"
+        boxShadow="md"
+        zIndex="sticky"
+      >
         <Sidebar />
       </GridItem>
-      <GridItem h="100vh" mt="15px">
-        <Outlet></Outlet>
+      <GridItem p="4" overflowY="auto">
+        <Outlet />
       </GridItem>
     </Grid>
   );

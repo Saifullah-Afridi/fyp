@@ -48,7 +48,7 @@ const login = async (req, res, next) => {
 
 const getSingleEmployee = async (req, res, next) => {
   try {
-    const employee = await Employee.findOne({ NIC: req.body.NIC });
+    const employee = await Employee.findByIdAndUpdate(req.params.id);
     res.status(200).json({
       status: "success",
       employee,
@@ -73,13 +73,48 @@ const getAllEmployee = async (req, res, next) => {
 };
 
 const deleteEmployee = async (req, res, next) => {
-  const employee = await Employee.findOne({ NIC: req.body.NIC });
-  await employee.remove();
+  const employee = await Employee.findByIdAndDelete(req.params.id);
   res.status(200).json({
     status: "success",
     message: "Employee is deleted",
+    employee,
   });
 };
 
-const getAllDocotrs = async (req, res, next) => {};
-module.exports = { createEmployee, login, getAllEmployee };
+const updateEmployee = async (req, res, next) => {
+  try {
+    const employee = await Employee.findById(req.params.id);
+    if (!employee) {
+      return next(new AppError("This employee does not exist", 404));
+    }
+    if (!req.body.password) {
+      return next(new AppError("Please Provide Password", 400));
+    }
+    if (req.body.password) {
+      if (!req.body.confirmPassword) {
+        return next(new AppError("Please Confirm Your Password", 400));
+      }
+      if (req.body.password !== req.body.confirmPassword) {
+        return next(new AppError("Passwords Should be match"));
+      }
+      employee.password = req.body.password;
+      employee.confirmPassword = req.body.confirmPassword;
+    }
+
+    await employee.save();
+    res.status(200).json({
+      status: "success",
+      message: "Password has been updated",
+    });
+  } catch (error) {
+    next(new AppError(error.message, 500));
+  }
+};
+module.exports = {
+  createEmployee,
+  login,
+  getAllEmployee,
+  deleteEmployee,
+  getSingleEmployee,
+  updateEmployee,
+};

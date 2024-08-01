@@ -27,7 +27,7 @@ const employeeSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, "Provide the phone Number"],
+    required: [true, "Provide Password"],
     minlength: [6, "The minimum length should be 6"],
   },
   confirmPassword: {
