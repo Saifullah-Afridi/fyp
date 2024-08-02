@@ -2,19 +2,19 @@ import React, { useEffect, useState } from "react";
 
 import RegistrationForm from "./pages/RegistrationForm";
 import LoginPage from "./pages/LoginPage";
-import CreateEmployee from "./pages/admin/CreateEmployee";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import AdminLayout from "./layouts/adminLayout/AdminLayout";
-import Employees from "./pages/admin/Employees";
 
-import ReceptionistLayout from "./layouts/Receptionist/ReceptionistLayout";
 import DoctorPage from "./pages/DoctorPage";
 import PatientList from "./pages/PatientList";
 import axios from "axios";
 import WaitingRoom from "./pages/WaitingRoom";
-import Doctors from "./pages/admin/Doctors";
+import Doctors from "./pages/admin/Employees";
 import EditEmployee from "./components/EditEmployee";
+import ReceptionistPrivateRoutes from "./components/ReceptionistPrivateRoutes";
+import Header from "./components/Header";
+import AdminPrivateRoutes from "./components/AdminPrivateRoutes";
 
 const App = () => {
   const [patients, setPatients] = useState([]);
@@ -45,23 +45,32 @@ const App = () => {
 
   return (
     <BrowserRouter>
+      <Header />
       <Routes>
         <Route index element={<LoginPage />} />
         <Route path="/log-in" element={<LoginPage />} />
-        <Route path="/receptionist" element={<ReceptionistLayout />}>
-          <Route index element={<RegistrationForm />} />
-        </Route>
-        {/* admin routes  */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<CreateEmployee />} />
-          <Route path="create-employee" element={<CreateEmployee />} />
-          <Route path="doctors" element={<Doctors />}></Route>
-        </Route>
-        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/receptionist"
+          element={
+            <ReceptionistPrivateRoutes>
+              <RegistrationForm />
+            </ReceptionistPrivateRoutes>
+          }
+        />
+        {/* doctor routes */}
         <Route
           path="/doctor"
           element={<DoctorPage patients={patients} setPatients={setPatients} />}
         />
+        {/* admin routes  */}
+        <Route element={<AdminPrivateRoutes />}>
+          <Route path="/admin" element={<AdminLayout />} />
+        </Route>
+        {/* <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<CreateEmployee />} />
+          <Route path="create-employee" element={<CreateEmployee />} />
+          <Route path="doctors" element={<Doctors />}></Route>
+        </Route> */}
         <Route path="edit-employee/:id" element={<EditEmployee />} />{" "}
         <Route
           path="/patient-list"

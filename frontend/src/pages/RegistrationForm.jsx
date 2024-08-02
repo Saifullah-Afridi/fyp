@@ -98,7 +98,7 @@ const RegistrationForm = () => {
     formik.values;
 
   return (
-    <Container maxWidth="100%">
+    <Container maxWidth="95%" mx="auto">
       <Box bg="white" p={2} rounded="md" shadow="sm">
         <Heading textAlign="center" mb={4}>
           OPD Registration
@@ -207,15 +207,12 @@ const RegistrationForm = () => {
               </FormControl>
             </GridItem>
           </Grid>
-          <Box mt={4} display="flex" justifyContent="space-between">
+          <Box mt={4} display="flex" justifyContent="flex-end" gap="10px">
             <Button colorScheme="red" onClick={() => formik.resetForm()}>
               Clear All
             </Button>
             <Button colorScheme="blue" type="submit">
               Save
-            </Button>
-            <Button colorScheme="green" onClick={handlePrint}>
-              Print
             </Button>
           </Box>
         </form>

@@ -7,12 +7,13 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
-    navigate("/login");
+    navigate("/log-in");
   };
   return (
     <HStack
+      maxW="95%"
+      mx="auto"
       justify="space-between"
-      my="1rem"
       borderBottom="2px solid"
       borderColor="gray.200"
       py="5px"

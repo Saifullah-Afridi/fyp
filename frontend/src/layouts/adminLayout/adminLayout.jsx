@@ -1,35 +1,24 @@
-import { Container, Heading, HStack } from "@chakra-ui/react";
+import { Container, Heading, HStack, Grid, GridItem } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Sidebar } from "../../components/Sidebar";
-import { Grid, GridItem } from "@chakra-ui/react";
-const adminLayout = () => {
-  const navigate = useNavigate();
-  const [employee, setEmployee] = useState(
-    JSON.parse(localStorage.getItem("user")) || null
-  );
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    setEmployee(storedUser);
-  }, []);
+import CreateEmployee from "../../pages/admin/CreateEmployee";
+import Employees from "../../pages/admin/Employees";
+
+const AdminLayout = () => {
+  const location = useLocation();
+  const [tab, setTab] = useState(null);
 
   useEffect(() => {
-    if (!employee) {
-      navigate("/login");
-    } else {
-      const { occupation } = employee;
-      if (occupation === "admin") {
-        navigate("/admin");
-      } else if (occupation === "doctor") {
-        navigate("/doctor");
-      } else if (occupation === "recreceptionist") {
-        navigate("/receptionist");
-      }
-    }
-  }, []);
+    const queryString = new URLSearchParams(location.search);
+    const newTab = queryString.get("tab");
+    setTab(newTab);
+  }, [location.search]);
+
   return (
     <Grid
-      width="100%"
+      width="95%"
+      mx="auto"
       templateColumns="250px 1fr"
       templateRows="1fr"
       columnGap="5px"
@@ -40,6 +29,8 @@ const adminLayout = () => {
         bg="teal.100"
         position="sticky"
         top="0"
+        borderRight="1px"
+        borderRightColor="gray.500"
         height="100vh"
         overflowY="auto"
         boxShadow="md"
@@ -48,10 +39,12 @@ const adminLayout = () => {
         <Sidebar />
       </GridItem>
       <GridItem p="4" overflowY="auto">
-        <Outlet />
+        {tab === null && <CreateEmployee />}
+        {tab === "create-employee" && <CreateEmployee />}
+        {tab === "employees" && <Employees />}
       </GridItem>
     </Grid>
   );
 };
 
-export default adminLayout;
+export default AdminLayout;
