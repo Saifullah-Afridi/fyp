@@ -1,4 +1,5 @@
 const catchAsyncError = require("../middlewares/catchAsyncError");
+const moment = require("moment");
 const Patient = require("../models/patientModel");
 const AppError = require("../utils/AppError");
 
@@ -30,4 +31,38 @@ exports.getSinglePatient = catchAsyncError(async (req, res, next) => {
     status: "success",
     patient,
   });
+});
+exports.getPatientSummary = catchAsyncError(async (req, res, next) => {
+  try {
+    const today = moment().startOf("day");
+    const startOfMonth = moment().startOf("month");
+    const startOfYear = moment().startOf("year");
+    const endOfPreviousMonth = moment().subtract(1, "month").endOf("month");
+
+    const [
+      patientsToday,
+      patientsThisMonth,
+      patientsLastMonth,
+      patientsThisYear,
+    ] = await Promise.all([
+      Patient.countDocuments({ createdAt: { $gte: today.toDate() } }),
+      Patient.countDocuments({ createdAt: { $gte: startOfMonth.toDate() } }),
+      Patient.countDocuments({
+        createdAt: { $gte: startOfYear.toDate(), $lt: startOfMonth.toDate() },
+      }),
+      Patient.countDocuments({ createdAt: { $gte: startOfYear.toDate() } }),
+    ]);
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        patientsToday,
+        patientsThisMonth,
+        patientsLastMonth,
+        patientsThisYear,
+      },
+    });
+  } catch (error) {
+    next(new AppError(error.message, 500));
+  }
 });

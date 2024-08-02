@@ -51,8 +51,8 @@ const WaitingRoom = () => {
 
     fetchPatients();
 
-    const interval = setInterval(fetchPatients, 5000); // Poll every 5 seconds
-    return () => clearInterval(interval); // Clean up the interval on component unmount
+    const interval = setInterval(fetchPatients, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   return (

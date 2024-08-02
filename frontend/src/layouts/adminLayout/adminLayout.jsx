@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { Sidebar } from "../../components/Sidebar";
 import CreateEmployee from "../../pages/admin/CreateEmployee";
 import Employees from "../../pages/admin/Employees";
+import PatientSummary from "../../pages/admin/PatientSummary";
 
 const AdminLayout = () => {
   const location = useLocation();
@@ -39,7 +40,8 @@ const AdminLayout = () => {
         <Sidebar />
       </GridItem>
       <GridItem p="4" overflowY="auto">
-        {tab === null && <CreateEmployee />}
+        {tab === null && <PatientSummary />}
+        {tab === "summary" && <PatientSummary />}
         {tab === "create-employee" && <CreateEmployee />}
         {tab === "employees" && <Employees />}
       </GridItem>

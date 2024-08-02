@@ -5,6 +5,20 @@ import { Link } from "react-router-dom";
 export const Sidebar = () => {
   return (
     <VStack width="100%" alignItems="stretch">
+      <Link to="/admin?tab=summary">
+        <Text
+          fontSize="18px"
+          size="30px"
+          fontWeight="bold"
+          borderBottom="1px"
+          borderBottomColor="gray.400"
+          p="10px"
+          _hover={{ bg: "gray.100" }}
+        >
+          {" "}
+          Patient Summary
+        </Text>
+      </Link>
       <Link to="/admin?tab=create-employee">
         <Text
           fontSize="18px"
