@@ -37,20 +37,12 @@ const DoctorPage = () => {
     const fetchPatients = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/v1/patient"
+          "http://localhost:3000/api/v1/todays-patients"
         );
-        const today = new Date().toISOString().split("T")[0];
-        const todayPatients = response.data.patients.filter((patient) => {
-          const registrationDate = new Date(patient.createdAt);
-          return (
-            registrationDate instanceof Date &&
-            !isNaN(registrationDate) &&
-            registrationDate.toISOString().split("T")[0] === today
-          );
-        });
+        const todayPatients = response.data.visits;
 
         if (todayPatients.length > 0) {
-          setCurrentPatient(todayPatients[0]);
+          setCurrentPatient(todayPatients[0].patientId);
           setPatients(todayPatients.slice(1));
           setTotalPatients(todayPatients.length - 1);
         }
@@ -68,15 +60,25 @@ const DoctorPage = () => {
   const handleNextPatient = () => {
     setPatients((prevPatients) => {
       const nextPatients = prevPatients.slice(1);
-      setCurrentPatient(prevPatients[0]);
+      setCurrentPatient(nextPatients[0].patientId);
       setTotalPatients(nextPatients.length);
       return nextPatients;
     });
   };
 
-  const handleSubmit = (values) => {
-    console.log("Doctor Form Values:", values);
-    // Add logic to handle the form submission (e.g., sending data to the server)
+  const handleSubmit = async (values) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/api/v1/visit/record`,
+        {
+          patientId: currentPatient._id,
+          ...values,
+        }
+      );
+      console.log("Submission Response:", response);
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
   };
 
   return (
@@ -117,35 +119,24 @@ const DoctorPage = () => {
                 </Tr>
               </Thead>
               <Tbody>
-                {patients.map((patient, index) => (
-                  <Tr key={patient._id}>
+                {patients.map((visit, index) => (
+                  <Tr key={visit.patientId._id}>
                     <Td>{index + 1}</Td>
-                    <Td>{patient.patientName}</Td>
-                    <Td>{new Date(patient.createdAt).toLocaleTimeString()}</Td>
-                    <Td>{patient._id}</Td>
+                    <Td>{visit.patientId.name}</Td>
+                    <Td>{new Date(visit.date).toLocaleTimeString()}</Td>
+                    <Td>{visit.patientId._id}</Td>
                   </Tr>
                 ))}
               </Tbody>
             </Table>
-            {/* Current patient details */}
             {currentPatient && (
               <Box bg="gray.50" p={6} rounded="md" shadow="sm">
                 <Heading fontSize="24px" mb="4">
                   Current Patient Details
                 </Heading>
                 <Text>
-                  <strong>Name:</strong> {currentPatient.patientName}
+                  <strong>Name:</strong> {currentPatient.name}
                 </Text>
-                <Text>
-                  <strong>Age:</strong> {currentPatient.age}
-                </Text>
-                <Text>
-                  <strong>Blood Group:</strong> {currentPatient.bloodGroup}
-                </Text>
-                <Text>
-                  <strong>Address:</strong> {currentPatient.address}
-                </Text>
-
                 <Formik
                   initialValues={{
                     prescription: "",

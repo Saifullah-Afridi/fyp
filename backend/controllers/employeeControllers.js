@@ -7,7 +7,6 @@ const createEmployee = async (req, res, next) => {
     const { NIC, phoneNumber } = req.body;
     const findEmployee = await Employee.findOne({ NIC, phoneNumber });
     if (findEmployee) {
-      console.log("hello");
       return next(new AppError("Employee already exist With This NIC", 400));
     }
     console.log("hello from outside");

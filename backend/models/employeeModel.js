@@ -22,8 +22,8 @@ const employeeSchema = new mongoose.Schema({
     type: String,
     unique: true,
     required: [true, "Provide the phone Number"],
-    minlength: [11, "The minimum name should be of 11 character long"],
-    maxlength: [11, "The maximum name should be of 11 character long"],
+    minlength: [11, "The phone number should be  of 11 character long"],
+    maxlength: [11, "The phone number should be of 11 character long"],
   },
   password: {
     type: String,
@@ -42,7 +42,7 @@ const employeeSchema = new mongoose.Schema({
   },
   address: {
     type: String,
-    required: [true, "provide doctor address"],
+    required: [true, "Please provide address"],
   },
   occupation: {
     type: String,

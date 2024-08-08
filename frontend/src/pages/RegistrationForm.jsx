@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -16,7 +16,6 @@ import {
   Text,
   Icon,
   Input,
-  Image,
 } from "@chakra-ui/react";
 import {
   FaUser,
@@ -26,12 +25,10 @@ import {
   FaUserShield,
   FaCalendarAlt,
 } from "react-icons/fa";
-import Print from "../components/Print";
 
 const RegistrationForm = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const printRef = useRef();
 
   const formik = useFormik({
     initialValues: {
@@ -41,7 +38,6 @@ const RegistrationForm = () => {
       guardianName: "",
       age: "",
       phoneNumber: "",
-      imageSrc: "https://via.placeholder.com/100", // Placeholder image URL
     },
     validationSchema: Yup.object({
       patientName: Yup.string()
@@ -53,7 +49,7 @@ const RegistrationForm = () => {
         .length(13, "NIC must be exactly 13 characters"),
       address: Yup.string()
         .required("Required")
-        .min(10, "Minimum length should be 10 characters"),
+        .min(5, "Minimum length should be 5 characters"),
       guardianName: Yup.string()
         .required("Required")
         .min(3, "Minimum length should be 3 characters")
@@ -68,34 +64,54 @@ const RegistrationForm = () => {
           /^03[0-9]{9}$/,
           "Phone number must be valid Pakistani format (03XXXXXXXXX)"
         ),
-      imageSrc: Yup.string().url("Invalid image URL"),
     }),
-    onSubmit: (values) => {
-      axios
-        .post("http://localhost:3000/api/v1/patient", values)
-        .then((response) => {
-          setSuccessMessage("Patient registered successfully!");
-          setErrorMessage("");
-        })
-        .catch((error) => {
-          setErrorMessage("Failed to register patient. Please try again.");
-          setSuccessMessage("");
-        });
+    onSubmit: async (values) => {
+      try {
+        // Check if patient exists
+        const patientResponse = await axios.get(
+          `http://localhost:3000/api/v1/patient?nic=${values.NIC}`
+        );
+
+        if (patientResponse.data.exists) {
+          // If patient exists, create/update visit record
+          await axios.post("http://localhost:3000/api/v1/visit", {
+            patientId: patientResponse.data.patient._id,
+            visitDate: new Date().toISOString().split("T")[0], // today's date
+          });
+        } else {
+          // If patient does not exist, register patient and create visit record
+          const newPatientResponse = await axios.post(
+            "http://localhost:3000/api/v1/patient",
+            values
+          );
+          await axios.post("http://localhost:3000/api/v1/visit/record", {
+            patientId: newPatientResponse.data.patient._id,
+            visitDate: new Date().toISOString().split("T")[0], // today's date
+          });
+        }
+
+        setSuccessMessage(
+          "Patient registered and visit recorded successfully!"
+        );
+        setErrorMessage("");
+
+        // Reset form fields
+        formik.resetForm();
+      } catch (error) {
+        console.error("Registration error:", error);
+        setErrorMessage(
+          "Failed to register patient or record visit. Please try again."
+        );
+        setSuccessMessage("");
+      }
     },
   });
 
-  const handlePrint = () => {
-    const printContent = printRef.current;
-    const printWindow = window.open("", "", "width=900,height=650");
-    printWindow.document.write(printContent.innerHTML);
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
+  const handleClearAll = () => {
+    formik.resetForm();
+    setSuccessMessage("");
+    setErrorMessage("");
   };
-
-  const { patientName, NIC, phoneNumber, guardianName, imageSrc } =
-    formik.values;
 
   return (
     <Container maxWidth="95%" mx="auto">
@@ -208,7 +224,7 @@ const RegistrationForm = () => {
             </GridItem>
           </Grid>
           <Box mt={4} display="flex" justifyContent="flex-end" gap="10px">
-            <Button colorScheme="red" onClick={() => formik.resetForm()}>
+            <Button colorScheme="red" onClick={handleClearAll}>
               Clear All
             </Button>
             <Button colorScheme="blue" type="submit">
@@ -216,16 +232,6 @@ const RegistrationForm = () => {
             </Button>
           </Box>
         </form>
-      </Box>
-      <Box>
-        <Print
-          ref={printRef}
-          patientName={patientName}
-          NIC={NIC}
-          phoneNumber={phoneNumber}
-          guardianName={guardianName}
-          imageSrc={imageSrc}
-        />
       </Box>
     </Container>
   );
