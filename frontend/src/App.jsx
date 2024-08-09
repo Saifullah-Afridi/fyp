@@ -44,9 +44,10 @@ const App = () => {
         </Route>
         {/* admin routes  */}
         <Route element={<AdminPrivateRoutes />}>
-          <Route path="/admin" element={<AdminLayout />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="edit-employee/:id" element={<EditEmployee />} />
+          </Route>
         </Route>
-        <Route path="edit-employee/:id" element={<EditEmployee />} />
       </Routes>
     </BrowserRouter>
   );

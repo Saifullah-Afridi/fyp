@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Button,
   Heading,
@@ -12,6 +12,7 @@ import {
   ModalBody,
   ModalFooter,
   Text,
+  Image,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 
@@ -48,7 +49,12 @@ const Header = () => {
         py="5px"
         shadow="sm"
       >
-        <Heading>HMS</Heading>
+        <HStack spacing={1}>
+          <Image src="/logo.jpg" alt="MHS Logo" boxSize="50px" />
+          <Heading as="h1" size="lg">
+            PDMS
+          </Heading>
+        </HStack>
         <HStack gap="15px">
           {isAuthenticated && (
             <Button colorScheme="blue" onClick={handleLogout}>

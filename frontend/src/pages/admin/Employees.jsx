@@ -99,7 +99,7 @@ const Employees = () => {
     {
       name: "Edit",
       cell: (row) => (
-        <Link to={`/edit-employee/${row._id}`}>
+        <Link to={`/admin/edit-employee/${row._id}`}>
           <Button colorScheme="blue" ml={2}>
             Edit
           </Button>

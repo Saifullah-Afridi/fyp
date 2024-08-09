@@ -68,20 +68,35 @@ const CreateReceptionist = () => {
     }),
     onSubmit: async (values) => {
       try {
-        await axios.post("http://localhost:3000/api/v1/receptionist", {
-          ...values,
-          occupation: "Receptionist",
-        });
+        const token = localStorage.getItem("token"); // Retrieve the token from local storage
+
+        await axios.post(
+          "http://localhost:3000/api/v1/employee",
+          {
+            ...values,
+            occupation: "receptionist",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+            },
+          }
+        );
         setSuccessMessage("Receptionist created successfully!");
         setErrorMessage("");
         formik.resetForm();
       } catch (error) {
-        console.error("Registration error:", error);
-        setErrorMessage("Failed to create receptionist. Please try again.");
+        setErrorMessage(error.response.data.message);
         setSuccessMessage("");
       }
     },
   });
+
+  const handleClearAll = () => {
+    formik.resetForm();
+    setSuccessMessage("");
+    setErrorMessage("");
+  };
 
   const getInputStyles = (fieldName) => {
     const isFilled = formik.values[fieldName]?.trim().length > 0;
@@ -313,7 +328,7 @@ const CreateReceptionist = () => {
                 flex="1"
                 variant="outline"
                 colorScheme="teal"
-                onClick={() => formik.resetForm()}
+                onClick={handleClearAll}
               >
                 Clear All
               </Button>

@@ -14,15 +14,13 @@ import {
   Icon,
   Input,
   Text,
-  Stack,
-  Flex, // Updated import for Stack
+  Flex,
 } from "@chakra-ui/react";
 import {
   FaUser,
   FaIdCard,
   FaMapMarkerAlt,
   FaPhone,
-  FaCalendarAlt,
   FaStethoscope,
   FaLock,
 } from "react-icons/fa";
@@ -76,16 +74,26 @@ const CreateDoctor = () => {
     }),
     onSubmit: async (values) => {
       try {
-        await axios.post("http://localhost:3000/api/v1/doctor", {
-          ...values,
-          occupation: "Doctor",
-        });
+        const token = localStorage.getItem("token"); // Retrieve the token from local storage
+
+        await axios.post(
+          "http://localhost:3000/api/v1/employee",
+          {
+            ...values,
+            occupation: "doctor",
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // Add the token to the Authorization header
+            },
+          }
+        );
         setSuccessMessage("Doctor created successfully!");
         setErrorMessage("");
         formik.resetForm();
       } catch (error) {
-        console.error("Registration error:", error);
-        setErrorMessage("Failed to create doctor. Please try again.");
+        setErrorMessage(error.response.data.message);
+
         setSuccessMessage("");
       }
     },
@@ -105,6 +113,12 @@ const CreateDoctor = () => {
       backgroundColor,
       boxShadow: isError ? undefined : `0 0 0 1px ${focusBorderColor}`, // Blue shadow if not an error
     };
+  };
+
+  const handleClearAll = () => {
+    formik.resetForm();
+    setSuccessMessage("");
+    setErrorMessage("");
   };
 
   return (
@@ -133,7 +147,7 @@ const CreateDoctor = () => {
                   isInvalid={formik.errors.name && formik.touched.name}
                 >
                   <FormLabel htmlFor="name" fontSize="sm">
-                    <Icon as={FaUser} mr={2} />{" "}
+                    <Icon as={FaUser} mr={2} />
                     <Text as="span" color="red.500">
                       *
                     </Text>{" "}
@@ -156,7 +170,7 @@ const CreateDoctor = () => {
                   isInvalid={formik.errors.NIC && formik.touched.NIC}
                 >
                   <FormLabel htmlFor="NIC" fontSize="sm">
-                    <Icon as={FaIdCard} mr={2} />{" "}
+                    <Icon as={FaIdCard} mr={2} />
                     <Text as="span" color="red.500">
                       *
                     </Text>{" "}
@@ -181,7 +195,7 @@ const CreateDoctor = () => {
                   isInvalid={formik.errors.address && formik.touched.address}
                 >
                   <FormLabel htmlFor="address" fontSize="sm">
-                    <Icon as={FaMapMarkerAlt} mr={2} />{" "}
+                    <Icon as={FaMapMarkerAlt} mr={2} />
                     <Text as="span" color="red.500">
                       *
                     </Text>{" "}
@@ -206,7 +220,7 @@ const CreateDoctor = () => {
                   }
                 >
                   <FormLabel htmlFor="phoneNumber" fontSize="sm">
-                    <Icon as={FaPhone} mr={2} />{" "}
+                    <Icon as={FaPhone} mr={2} />
                     <Text as="span" color="red.500">
                       *
                     </Text>{" "}
@@ -233,7 +247,7 @@ const CreateDoctor = () => {
                   }
                 >
                   <FormLabel htmlFor="speciality" fontSize="sm">
-                    <Icon as={FaStethoscope} mr={2} />{" "}
+                    <Icon as={FaStethoscope} mr={2} />
                     <Text as="span" color="red.500">
                       *
                     </Text>{" "}
@@ -256,7 +270,7 @@ const CreateDoctor = () => {
                   isInvalid={formik.errors.ward && formik.touched.ward}
                 >
                   <FormLabel htmlFor="ward" fontSize="sm">
-                    <Icon as={FaMapMarkerAlt} mr={2} />{" "}
+                    <Icon as={FaMapMarkerAlt} mr={2} />
                     <Text as="span" color="red.500">
                       *
                     </Text>{" "}
@@ -281,7 +295,7 @@ const CreateDoctor = () => {
                   isInvalid={formik.errors.password && formik.touched.password}
                 >
                   <FormLabel htmlFor="password" fontSize="sm">
-                    <Icon as={FaLock} mr={2} />{" "}
+                    <Icon as={FaLock} mr={2} />
                     <Text as="span" color="red.500">
                       *
                     </Text>{" "}
@@ -308,7 +322,7 @@ const CreateDoctor = () => {
                   }
                 >
                   <FormLabel htmlFor="confirmPassword" fontSize="sm">
-                    <Icon as={FaLock} mr={2} />{" "}
+                    <Icon as={FaLock} mr={2} />
                     <Text as="span" color="red.500">
                       *
                     </Text>{" "}
@@ -341,7 +355,7 @@ const CreateDoctor = () => {
                 flex="1"
                 variant="outline"
                 colorScheme="teal"
-                onClick={() => formik.resetForm()}
+                onClick={handleClearAll}
               >
                 Clear All
               </Button>
