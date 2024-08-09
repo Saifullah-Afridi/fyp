@@ -16,6 +16,8 @@ import {
   Text,
   Icon,
   Input,
+  InputGroup,
+  InputRightElement,
 } from "@chakra-ui/react";
 import {
   FaUser,
@@ -24,11 +26,16 @@ import {
   FaPhone,
   FaUserShield,
   FaCalendarAlt,
+  FaSearch,
 } from "react-icons/fa";
+
+const borderColor = "#e2e8f0"; // Light gray border color
+const focusBorderColor = "#3182ce"; // Blue color for focus
 
 const RegistrationForm = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [searchNIC, setSearchNIC] = useState("");
 
   const formik = useFormik({
     initialValues: {
@@ -111,11 +118,44 @@ const RegistrationForm = () => {
     formik.resetForm();
     setSuccessMessage("");
     setErrorMessage("");
+    setSearchNIC("");
+  };
+
+  const handleSearch = async () => {
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/api/v1/patient?nic=${searchNIC}`
+      );
+
+      if (response.data && Array.isArray(response.data.patients)) {
+        if (response.data.patients.length > 0) {
+          const patient = response.data.patients[0]; // Assuming the first result is the correct one
+          formik.setValues({
+            patientName: patient.patientName || "",
+            NIC: patient.NIC || "",
+            address: patient.address || "",
+            guardianName: patient.guardianName || "",
+            age: patient.age || "",
+            phoneNumber: patient.phoneNumber || "",
+          });
+          setErrorMessage("");
+        } else {
+          setErrorMessage("No patient found with this NIC.");
+          formik.resetForm();
+        }
+      } else {
+        setErrorMessage("Unexpected response format.");
+        formik.resetForm();
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      setErrorMessage("Failed to search patient. Please try again.");
+    }
   };
 
   return (
     <Container maxWidth="95%" mx="auto">
-      <Box bg="white" p={2} rounded="md" shadow="sm">
+      <Box bg="white" p={4} rounded="md" shadow="sm">
         <Heading textAlign="center" mb={4}>
           OPD Registration
         </Heading>
@@ -131,6 +171,33 @@ const RegistrationForm = () => {
             {errorMessage}
           </Alert>
         )}
+        <Box display="flex" justifyContent="flex-end" mb={4}>
+          <InputGroup width="auto">
+            <Input
+              placeholder="Enter NIC to search"
+              value={searchNIC}
+              onChange={(e) => setSearchNIC(e.target.value)}
+              borderColor={borderColor}
+              _focus={{
+                borderColor: focusBorderColor,
+                boxShadow: "0 0 0 1px #3182ce",
+              }}
+              borderWidth="1px"
+              borderRadius="md"
+              p={3}
+            />
+            <InputRightElement>
+              <Button
+                colorScheme="teal"
+                onClick={handleSearch}
+                aria-label="Search"
+                variant="outline"
+              >
+                <FaSearch />
+              </Button>
+            </InputRightElement>
+          </InputGroup>
+        </Box>
         <form onSubmit={formik.handleSubmit}>
           <Grid templateColumns="repeat(2, 1fr)" gap={6}>
             <GridItem>
@@ -145,9 +212,19 @@ const RegistrationForm = () => {
                 <Input
                   id="patientName"
                   {...formik.getFieldProps("patientName")}
+                  borderColor={borderColor}
+                  _focus={{
+                    borderColor: focusBorderColor,
+                    boxShadow: "0 0 0 1px #3182ce",
+                  }}
+                  borderWidth="1px"
+                  borderRadius="md"
+                  p={3}
                 />
                 {formik.errors.patientName && formik.touched.patientName && (
-                  <Text color="red.500">{formik.errors.patientName}</Text>
+                  <Text color="red.500" fontSize="sm" mt={1}>
+                    {formik.errors.patientName}
+                  </Text>
                 )}
               </FormControl>
             </GridItem>
@@ -156,9 +233,22 @@ const RegistrationForm = () => {
                 <FormLabel htmlFor="NIC">
                   <Icon as={FaIdCard} mr={2} /> NIC
                 </FormLabel>
-                <Input id="NIC" {...formik.getFieldProps("NIC")} />
+                <Input
+                  id="NIC"
+                  {...formik.getFieldProps("NIC")}
+                  borderColor={borderColor}
+                  _focus={{
+                    borderColor: focusBorderColor,
+                    boxShadow: "0 0 0 1px #3182ce",
+                  }}
+                  borderWidth="1px"
+                  borderRadius="md"
+                  p={3}
+                />
                 {formik.errors.NIC && formik.touched.NIC && (
-                  <Text color="red.500">{formik.errors.NIC}</Text>
+                  <Text color="red.500" fontSize="sm" mt={1}>
+                    {formik.errors.NIC}
+                  </Text>
                 )}
               </FormControl>
             </GridItem>
@@ -169,9 +259,22 @@ const RegistrationForm = () => {
                 <FormLabel htmlFor="address">
                   <Icon as={FaMapMarkerAlt} mr={2} /> Address
                 </FormLabel>
-                <Input id="address" {...formik.getFieldProps("address")} />
+                <Input
+                  id="address"
+                  {...formik.getFieldProps("address")}
+                  borderColor={borderColor}
+                  _focus={{
+                    borderColor: focusBorderColor,
+                    boxShadow: "0 0 0 1px #3182ce",
+                  }}
+                  borderWidth="1px"
+                  borderRadius="md"
+                  p={3}
+                />
                 {formik.errors.address && formik.touched.address && (
-                  <Text color="red.500">{formik.errors.address}</Text>
+                  <Text color="red.500" fontSize="sm" mt={1}>
+                    {formik.errors.address}
+                  </Text>
                 )}
               </FormControl>
             </GridItem>
@@ -187,9 +290,19 @@ const RegistrationForm = () => {
                 <Input
                   id="guardianName"
                   {...formik.getFieldProps("guardianName")}
+                  borderColor={borderColor}
+                  _focus={{
+                    borderColor: focusBorderColor,
+                    boxShadow: "0 0 0 1px #3182ce",
+                  }}
+                  borderWidth="1px"
+                  borderRadius="md"
+                  p={3}
                 />
                 {formik.errors.guardianName && formik.touched.guardianName && (
-                  <Text color="red.500">{formik.errors.guardianName}</Text>
+                  <Text color="red.500" fontSize="sm" mt={1}>
+                    {formik.errors.guardianName}
+                  </Text>
                 )}
               </FormControl>
             </GridItem>
@@ -198,9 +311,22 @@ const RegistrationForm = () => {
                 <FormLabel htmlFor="age">
                   <Icon as={FaCalendarAlt} mr={2} /> Age
                 </FormLabel>
-                <Input id="age" {...formik.getFieldProps("age")} />
+                <Input
+                  id="age"
+                  {...formik.getFieldProps("age")}
+                  borderColor={borderColor}
+                  _focus={{
+                    borderColor: focusBorderColor,
+                    boxShadow: "0 0 0 1px #3182ce",
+                  }}
+                  borderWidth="1px"
+                  borderRadius="md"
+                  p={3}
+                />
                 {formik.errors.age && formik.touched.age && (
-                  <Text color="red.500">{formik.errors.age}</Text>
+                  <Text color="red.500" fontSize="sm" mt={1}>
+                    {formik.errors.age}
+                  </Text>
                 )}
               </FormControl>
             </GridItem>
@@ -216,19 +342,39 @@ const RegistrationForm = () => {
                 <Input
                   id="phoneNumber"
                   {...formik.getFieldProps("phoneNumber")}
+                  borderColor={borderColor}
+                  _focus={{
+                    borderColor: focusBorderColor,
+                    boxShadow: "0 0 0 1px #3182ce",
+                  }}
+                  borderWidth="1px"
+                  borderRadius="md"
+                  p={3}
                 />
                 {formik.errors.phoneNumber && formik.touched.phoneNumber && (
-                  <Text color="red.500">{formik.errors.phoneNumber}</Text>
+                  <Text color="red.500" fontSize="sm" mt={1}>
+                    {formik.errors.phoneNumber}
+                  </Text>
                 )}
               </FormControl>
             </GridItem>
           </Grid>
-          <Box mt={4} display="flex" justifyContent="flex-end" gap="10px">
-            <Button colorScheme="red" onClick={handleClearAll}>
-              Clear All
+          <Box
+            textAlign="center"
+            mt={4}
+            display="flex"
+            justifyContent="flex-end"
+          >
+            <Button type="submit" colorScheme="teal" mr={4} aria-label="Submit">
+              Submit
             </Button>
-            <Button colorScheme="blue" type="submit">
-              Save
+            <Button
+              type="button"
+              colorScheme="red"
+              onClick={handleClearAll}
+              aria-label="Clear"
+            >
+              Clear All
             </Button>
           </Box>
         </form>
