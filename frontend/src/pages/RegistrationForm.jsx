@@ -97,18 +97,14 @@ const RegistrationForm = () => {
           });
         }
 
-        setSuccessMessage(
-          "Patient registered and visit recorded successfully!"
-        );
+        setSuccessMessage("Patient registration is successfull");
         setErrorMessage("");
 
         // Reset form fields
         formik.resetForm();
       } catch (error) {
         console.error("Registration error:", error);
-        setErrorMessage(
-          "Failed to register patient or record visit. Please try again."
-        );
+        setErrorMessage("Failed to register patient");
         setSuccessMessage("");
       }
     },
@@ -122,6 +118,11 @@ const RegistrationForm = () => {
   };
 
   const handleSearch = async () => {
+    if (!searchNIC.trim()) {
+      // Optionally show an alert or error message if search input is empty
+      return;
+    }
+
     try {
       const response = await axios.get(
         `http://localhost:3000/api/v1/patient?nic=${searchNIC}`
@@ -152,26 +153,25 @@ const RegistrationForm = () => {
       setErrorMessage("Failed to search patient. Please try again.");
     }
   };
-
   return (
     <Container maxWidth="95%" mx="auto">
       <Box bg="white" p={4} rounded="md" shadow="sm">
-        <Heading textAlign="center" mb={4}>
+        <Heading textAlign="center" mb={3} fontSize="24px">
           OPD Registration
         </Heading>
         {successMessage && (
-          <Alert status="success" mb={4}>
+          <Alert status="success" mb={2}>
             <AlertIcon />
             {successMessage}
           </Alert>
         )}
         {errorMessage && (
-          <Alert status="error" mb={4}>
+          <Alert status="error" mb={2}>
             <AlertIcon />
             {errorMessage}
           </Alert>
         )}
-        <Box display="flex" justifyContent="flex-end" mb={4}>
+        <Box display="flex" justifyContent="flex-end" mb={1}>
           <InputGroup width="auto">
             <Input
               placeholder="Enter NIC to search"
@@ -184,7 +184,9 @@ const RegistrationForm = () => {
               }}
               borderWidth="1px"
               borderRadius="md"
-              p={3}
+              p={2} // Reduced padding for smaller heighth
+              height="30px" // Set specific height
+              fontSize="sm" // Smaller font size
             />
             <InputRightElement>
               <Button
@@ -192,6 +194,8 @@ const RegistrationForm = () => {
                 onClick={handleSearch}
                 aria-label="Search"
                 variant="outline"
+                size="sm"
+                mt="-10px"
               >
                 <FaSearch />
               </Button>
@@ -206,7 +210,7 @@ const RegistrationForm = () => {
                   formik.errors.patientName && formik.touched.patientName
                 }
               >
-                <FormLabel htmlFor="patientName">
+                <FormLabel htmlFor="patientName" fontSize="sm">
                   <Icon as={FaUser} mr={2} /> Patient Name
                 </FormLabel>
                 <Input
@@ -219,10 +223,13 @@ const RegistrationForm = () => {
                   }}
                   borderWidth="1px"
                   borderRadius="md"
-                  p={3}
+                  p={2} // Reduced padding for smaller height
+                  height="30px" // Set specific height
+                  lineHeight="1.2" // Adjust line height for smaller height
+                  fontSize="sm" // Smaller font size
                 />
                 {formik.errors.patientName && formik.touched.patientName && (
-                  <Text color="red.500" fontSize="sm" mt={1}>
+                  <Text color="red.500" fontSize="sm" mt="2px">
                     {formik.errors.patientName}
                   </Text>
                 )}
@@ -230,7 +237,7 @@ const RegistrationForm = () => {
             </GridItem>
             <GridItem>
               <FormControl isInvalid={formik.errors.NIC && formik.touched.NIC}>
-                <FormLabel htmlFor="NIC">
+                <FormLabel htmlFor="NIC" fontSize="sm">
                   <Icon as={FaIdCard} mr={2} /> NIC
                 </FormLabel>
                 <Input
@@ -243,10 +250,13 @@ const RegistrationForm = () => {
                   }}
                   borderWidth="1px"
                   borderRadius="md"
-                  p={3}
+                  p={2} // Reduced padding for smaller height
+                  height="30px" // Set specific height
+                  lineHeight="1.2" // Adjust line height for smaller height
+                  fontSize="sm" // Smaller font size
                 />
                 {formik.errors.NIC && formik.touched.NIC && (
-                  <Text color="red.500" fontSize="sm" mt={1}>
+                  <Text color="red.500" fontSize="sm" mt="2px">
                     {formik.errors.NIC}
                   </Text>
                 )}
@@ -256,7 +266,7 @@ const RegistrationForm = () => {
               <FormControl
                 isInvalid={formik.errors.address && formik.touched.address}
               >
-                <FormLabel htmlFor="address">
+                <FormLabel htmlFor="address" fontSize="sm">
                   <Icon as={FaMapMarkerAlt} mr={2} /> Address
                 </FormLabel>
                 <Input
@@ -269,10 +279,13 @@ const RegistrationForm = () => {
                   }}
                   borderWidth="1px"
                   borderRadius="md"
-                  p={3}
+                  p={2} // Reduced padding for smaller height
+                  height="30px" // Set specific height
+                  lineHeight="1.2" // Adjust line height for smaller height
+                  fontSize="sm" // Smaller font size
                 />
                 {formik.errors.address && formik.touched.address && (
-                  <Text color="red.500" fontSize="sm" mt={1}>
+                  <Text color="red.500" fontSize="sm" mt="2px">
                     {formik.errors.address}
                   </Text>
                 )}
@@ -284,7 +297,7 @@ const RegistrationForm = () => {
                   formik.errors.guardianName && formik.touched.guardianName
                 }
               >
-                <FormLabel htmlFor="guardianName">
+                <FormLabel htmlFor="guardianName" fontSize="sm">
                   <Icon as={FaUserShield} mr={2} /> Guardian Name
                 </FormLabel>
                 <Input
@@ -297,10 +310,13 @@ const RegistrationForm = () => {
                   }}
                   borderWidth="1px"
                   borderRadius="md"
-                  p={3}
+                  p={2} // Reduced padding for smaller height
+                  height="30px" // Set specific height
+                  lineHeight="1.2" // Adjust line height for smaller height
+                  fontSize="sm" // Smaller font size
                 />
                 {formik.errors.guardianName && formik.touched.guardianName && (
-                  <Text color="red.500" fontSize="sm" mt={1}>
+                  <Text color="red.500" fontSize="sm" mt="2px">
                     {formik.errors.guardianName}
                   </Text>
                 )}
@@ -308,7 +324,7 @@ const RegistrationForm = () => {
             </GridItem>
             <GridItem>
               <FormControl isInvalid={formik.errors.age && formik.touched.age}>
-                <FormLabel htmlFor="age">
+                <FormLabel htmlFor="age" fontSize="sm">
                   <Icon as={FaCalendarAlt} mr={2} /> Age
                 </FormLabel>
                 <Input
@@ -321,10 +337,13 @@ const RegistrationForm = () => {
                   }}
                   borderWidth="1px"
                   borderRadius="md"
-                  p={3}
+                  p={2} // Reduced padding for smaller height
+                  height="30px" // Set specific height
+                  lineHeight="1.2" // Adjust line height for smaller height
+                  fontSize="sm" // Smaller font size
                 />
                 {formik.errors.age && formik.touched.age && (
-                  <Text color="red.500" fontSize="sm" mt={1}>
+                  <Text color="red.500" fontSize="sm" mt="2px">
                     {formik.errors.age}
                   </Text>
                 )}
@@ -336,7 +355,7 @@ const RegistrationForm = () => {
                   formik.errors.phoneNumber && formik.touched.phoneNumber
                 }
               >
-                <FormLabel htmlFor="phoneNumber">
+                <FormLabel htmlFor="phoneNumber" fontSize="sm">
                   <Icon as={FaPhone} mr={2} /> Phone Number
                 </FormLabel>
                 <Input
@@ -349,10 +368,13 @@ const RegistrationForm = () => {
                   }}
                   borderWidth="1px"
                   borderRadius="md"
-                  p={3}
+                  p={2} // Reduced padding for smaller height
+                  height="30px" // Set specific height
+                  lineHeight="1.2" // Adjust line height for smaller height
+                  fontSize="sm" // Smaller font size
                 />
                 {formik.errors.phoneNumber && formik.touched.phoneNumber && (
-                  <Text color="red.500" fontSize="sm" mt={1}>
+                  <Text color="red.500" fontSize="sm" mt="2px">
                     {formik.errors.phoneNumber}
                   </Text>
                 )}
@@ -361,20 +383,21 @@ const RegistrationForm = () => {
           </Grid>
           <Box
             textAlign="center"
-            mt={4}
+            mt={3}
             display="flex"
             justifyContent="flex-end"
           >
-            <Button type="submit" colorScheme="teal" mr={4} aria-label="Submit">
-              Submit
-            </Button>
             <Button
               type="button"
               colorScheme="red"
               onClick={handleClearAll}
               aria-label="Clear"
+              mr={4}
             >
               Clear All
+            </Button>
+            <Button type="submit" colorScheme="teal" aria-label="Submit">
+              Submit
             </Button>
           </Box>
         </form>
