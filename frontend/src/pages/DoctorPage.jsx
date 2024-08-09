@@ -37,7 +37,7 @@ const DoctorPage = () => {
     const fetchPatients = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/v1/todays-patients"
+          "http://localhost:3000/api/v1/patient/todays-patients"
         );
         const todayPatients = response.data.visits;
 
@@ -122,7 +122,7 @@ const DoctorPage = () => {
                 {patients.map((visit, index) => (
                   <Tr key={visit.patientId._id}>
                     <Td>{index + 1}</Td>
-                    <Td>{visit.patientId.name}</Td>
+                    <Td>{visit.patientId.patientName}</Td>
                     <Td>{new Date(visit.date).toLocaleTimeString()}</Td>
                     <Td>{visit.patientId._id}</Td>
                   </Tr>

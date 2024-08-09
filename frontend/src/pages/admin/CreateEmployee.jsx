@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -16,7 +16,6 @@ import {
   Text,
   Icon,
   Input,
-  Image,
 } from "@chakra-ui/react";
 import {
   FaUser,
@@ -51,7 +50,7 @@ const CreateEmployee = () => {
         .length(13, "NIC must be exactly 13 characters"),
       address: Yup.string()
         .required("Required")
-        .min(4, "Minimum length should be 10 characters"),
+        .min(4, "Minimum length should be 4 characters"),
       occupation: Yup.string()
         .required("Required")
         .min(4, "Minimum length should be 3 characters")
@@ -69,7 +68,6 @@ const CreateEmployee = () => {
       confirmPassword: Yup.string()
         .required("Required")
         .oneOf([Yup.ref("password"), null], "Passwords must match"),
-      imageSrc: Yup.string().url("Invalid image URL"),
     }),
     onSubmit: (values) => {
       axios
@@ -87,7 +85,7 @@ const CreateEmployee = () => {
 
   return (
     <Container minWidth="full">
-      <Box bg="white" p={2} rounded="md" shadow="sm" w="100%">
+      <Box bg="white" p={4} rounded="md" shadow="sm" w="100%">
         <Heading textAlign="center" mb={6}>
           Create Employee
         </Heading>
@@ -110,7 +108,11 @@ const CreateEmployee = () => {
                 isInvalid={formik.errors.name && formik.touched.name}
               >
                 <FormLabel htmlFor="name">
-                  <Icon as={FaUser} mr={2} /> Employee Name
+                  <Text as="span" color="red.500" mr={1}>
+                    *
+                  </Text>
+                  <Icon as={FaUser} mr={2} />
+                  Employee Name
                 </FormLabel>
                 <Input id="name" {...formik.getFieldProps("name")} />
                 {formik.errors.name && formik.touched.name && (
@@ -121,7 +123,11 @@ const CreateEmployee = () => {
             <GridItem>
               <FormControl isInvalid={formik.errors.NIC && formik.touched.NIC}>
                 <FormLabel htmlFor="NIC">
-                  <Icon as={FaIdCard} mr={2} /> NIC
+                  <Text as="span" color="red.500" mr={1}>
+                    *
+                  </Text>
+                  <Icon as={FaIdCard} mr={2} />
+                  NIC
                 </FormLabel>
                 <Input id="NIC" {...formik.getFieldProps("NIC")} />
                 {formik.errors.NIC && formik.touched.NIC && (
@@ -134,7 +140,11 @@ const CreateEmployee = () => {
                 isInvalid={formik.errors.address && formik.touched.address}
               >
                 <FormLabel htmlFor="address">
-                  <Icon as={FaMapMarkerAlt} mr={2} /> Address
+                  <Text as="span" color="red.500" mr={1}>
+                    *
+                  </Text>
+                  <Icon as={FaMapMarkerAlt} mr={2} />
+                  Address
                 </FormLabel>
                 <Input id="address" {...formik.getFieldProps("address")} />
                 {formik.errors.address && formik.touched.address && (
@@ -150,7 +160,11 @@ const CreateEmployee = () => {
                 }
               >
                 <FormLabel htmlFor="phoneNumber">
-                  <Icon as={FaPhone} mr={2} /> Phone Number
+                  <Text as="span" color="red.500" mr={1}>
+                    *
+                  </Text>
+                  <Icon as={FaPhone} mr={2} />
+                  Phone Number
                 </FormLabel>
                 <Input
                   id="phoneNumber"
@@ -165,10 +179,18 @@ const CreateEmployee = () => {
               <FormControl
                 isInvalid={formik.errors.password && formik.touched.password}
               >
-                <FormLabel htmlFor="Password">
-                  <Icon as={FaPhone} mr={2} /> Password
+                <FormLabel htmlFor="password">
+                  <Text as="span" color="red.500" mr={1}>
+                    *
+                  </Text>
+                  <Icon as={FaPhone} mr={2} />
+                  Password
                 </FormLabel>
-                <Input id="Password" {...formik.getFieldProps("password")} />
+                <Input
+                  id="password"
+                  type="password"
+                  {...formik.getFieldProps("password")}
+                />
                 {formik.errors.password && formik.touched.password && (
                   <Text color="red.500">{formik.errors.password}</Text>
                 )}
@@ -181,11 +203,16 @@ const CreateEmployee = () => {
                   formik.touched.confirmPassword
                 }
               >
-                <FormLabel htmlFor="confirmPasswordd">
-                  <Icon as={FaPhone} mr={2} /> Confirm Password
+                <FormLabel htmlFor="confirmPassword">
+                  <Text as="span" color="red.500" mr={1}>
+                    *
+                  </Text>
+                  <Icon as={FaPhone} mr={2} />
+                  Confirm Password
                 </FormLabel>
                 <Input
                   id="confirmPassword"
+                  type="password"
                   {...formik.getFieldProps("confirmPassword")}
                 />
                 {formik.errors.confirmPassword &&
@@ -201,7 +228,11 @@ const CreateEmployee = () => {
                 }
               >
                 <FormLabel htmlFor="occupation">
-                  <Icon as={FaUserShield} mr={2} /> Occupation
+                  <Text as="span" color="red.500" mr={1}>
+                    *
+                  </Text>
+                  <Icon as={FaUserShield} mr={2} />
+                  Occupation
                 </FormLabel>
                 <Input
                   id="occupation"
@@ -219,7 +250,11 @@ const CreateEmployee = () => {
                 }
               >
                 <FormLabel htmlFor="speciality">
-                  <Icon as={FaPhone} mr={2} /> Speciality
+                  <Text as="span" color="red.500" mr={1}>
+                    *
+                  </Text>
+                  <Icon as={FaCalendarAlt} mr={2} />
+                  Speciality
                 </FormLabel>
                 <Input
                   id="speciality"

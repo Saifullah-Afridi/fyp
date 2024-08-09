@@ -20,19 +20,18 @@ export const Sidebar = () => {
       width="230px"
       bg="teal.100"
       position="fixed"
-      top="0"
+      top="60px" // Adjust according to header height
       bottom="0"
       left="0"
       borderRight="1px"
       borderRightColor="gray.500"
-      height="100vh"
+      height="calc(100vh - 60px)" // Adjust according to header height
       overflowY="auto"
-      boxShadow=""
-      zIndex="sticky" // Ensures it's below the header
+      boxShadow="md"
+      zIndex="1" // Ensure it's below the header
     >
       <Box p="4" borderBottom="1px" borderBottomColor="gray.400">
         <Text fontSize="lg" fontWeight="bold" color="white">
-          {/* Your Logo Here */}
           <Box fontSize="xl">
             <Heading>HMS</Heading>
           </Box>
@@ -57,7 +56,6 @@ export const Sidebar = () => {
           </Text>
         </Link>
 
-        {/* Separate "Create Account" Section */}
         <Box>
           <Text
             fontSize="18px"
