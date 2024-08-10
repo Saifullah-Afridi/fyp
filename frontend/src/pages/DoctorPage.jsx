@@ -22,6 +22,13 @@ import {
   Textarea,
   VStack,
   IconButton,
+  Tabs,
+  TabList,
+  TabPanels,
+  Tab,
+  TabPanel,
+  Grid,
+  GridItem,
 } from "@chakra-ui/react";
 import { Formik, FieldArray, Form } from "formik";
 import { FaTrash } from "react-icons/fa";
@@ -60,7 +67,7 @@ const DoctorPage = () => {
   const handleNextPatient = () => {
     setPatients((prevPatients) => {
       const nextPatients = prevPatients.slice(1);
-      setCurrentPatient(nextPatients[0].patientId);
+      setCurrentPatient(nextPatients[0]?.patientId || null);
       setTotalPatients(nextPatients.length);
       return nextPatients;
     });
@@ -82,172 +89,201 @@ const DoctorPage = () => {
   };
 
   return (
-    <Container py={6} maxWidth="95%">
-      <Box bg="white" p={6} rounded="md" shadow="sm" w="100%">
-        <HStack alignItems="center" gap="4rem" mb="1rem" w="100%">
-          <Heading fontSize="30px" mb="20px" textColor="blue.400">
-            Patients in Pending
-          </Heading>
-          <Text fontSize="18px" textColor="blue.400">
-            Total Patients: {totalPatients}
-          </Text>
-        </HStack>
-        {loading ? (
-          <Spinner size="xl" />
-        ) : error ? (
-          <Alert status="error">
+    <Container py={6} maxWidth="1200px">
+      <Box bg="white" p={6} rounded="md" shadow="md">
+        <Heading fontSize="32px" mb="20px" textColor="blue.500">
+          Doctor Dashboard
+        </Heading>
+
+        {error && (
+          <Alert status="error" mb="20px">
             <AlertIcon />
             {error}
           </Alert>
-        ) : (
-          <>
-            <Button
-              colorScheme="blue"
-              onClick={handleNextPatient}
-              mb="20px"
-              isDisabled={patients.length === 0}
-            >
-              Next Patient
-            </Button>
-            <Table variant="striped" colorScheme="teal" shadow="sm" mb="20px">
-              <Thead>
-                <Tr>
-                  <Th>Serial Number</Th>
-                  <Th>Patient Name</Th>
-                  <Th>Time of Registration</Th>
-                  <Th>Patient ID</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {patients.map((visit, index) => (
-                  <Tr key={visit.patientId._id}>
-                    <Td>{index + 1}</Td>
-                    <Td>{visit.patientId.patientName}</Td>
-                    <Td>{new Date(visit.date).toLocaleTimeString()}</Td>
-                    <Td>{visit.patientId._id}</Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
-            {currentPatient && (
-              <Box bg="gray.50" p={6} rounded="md" shadow="sm">
-                <Heading fontSize="24px" mb="4">
-                  Current Patient Details
-                </Heading>
-                <Text>
-                  <strong>Name:</strong> {currentPatient.name}
-                </Text>
-                <Formik
-                  initialValues={{
-                    prescription: "",
-                    tests: [""],
-                    medicines: [{ name: "", dosage: "", days: "" }],
-                  }}
-                  onSubmit={handleSubmit}
-                >
-                  {({ values, handleChange }) => (
-                    <Form>
-                      <VStack spacing={4} align="stretch">
-                        <FormControl>
-                          <FormLabel>Doctor's Prescription</FormLabel>
-                          <Textarea
-                            name="prescription"
-                            value={values.prescription}
-                            onChange={handleChange}
-                          />
-                        </FormControl>
-
-                        <FormControl>
-                          <FormLabel>Tests Required</FormLabel>
-                          <FieldArray name="tests">
-                            {({ push, remove }) => (
-                              <VStack spacing={2}>
-                                {values.tests.map((test, index) => (
-                                  <HStack key={index} w="100%">
-                                    <Input
-                                      name={`tests[${index}]`}
-                                      value={test}
-                                      onChange={handleChange}
-                                      placeholder="Enter test"
-                                    />
-                                    <IconButton
-                                      icon={<FaTrash />}
-                                      onClick={() => remove(index)}
-                                      colorScheme="red"
-                                      variant="outline"
-                                    />
-                                  </HStack>
-                                ))}
-                                <Button
-                                  onClick={() => push("")}
-                                  colorScheme="blue"
-                                  variant="outline"
-                                >
-                                  Add Test
-                                </Button>
-                              </VStack>
-                            )}
-                          </FieldArray>
-                        </FormControl>
-
-                        <FormControl>
-                          <FormLabel>Medicines</FormLabel>
-                          <FieldArray name="medicines">
-                            {({ push, remove }) => (
-                              <VStack spacing={2}>
-                                {values.medicines.map((medicine, index) => (
-                                  <HStack key={index} w="100%">
-                                    <Input
-                                      name={`medicines[${index}].name`}
-                                      value={medicine.name}
-                                      onChange={handleChange}
-                                      placeholder="Medicine Name"
-                                    />
-                                    <Input
-                                      name={`medicines[${index}].dosage`}
-                                      value={medicine.dosage}
-                                      onChange={handleChange}
-                                      placeholder="Dosage per Day"
-                                    />
-                                    <Input
-                                      name={`medicines[${index}].days`}
-                                      value={medicine.days}
-                                      onChange={handleChange}
-                                      placeholder="Total Days"
-                                    />
-                                    <IconButton
-                                      icon={<FaTrash />}
-                                      onClick={() => remove(index)}
-                                      colorScheme="red"
-                                      variant="outline"
-                                    />
-                                  </HStack>
-                                ))}
-                                <Button
-                                  onClick={() =>
-                                    push({ name: "", dosage: "", days: "" })
-                                  }
-                                  colorScheme="blue"
-                                  variant="outline"
-                                >
-                                  Add Medicine
-                                </Button>
-                              </VStack>
-                            )}
-                          </FieldArray>
-                        </FormControl>
-
-                        <Button type="submit" colorScheme="green">
-                          Submit
-                        </Button>
-                      </VStack>
-                    </Form>
-                  )}
-                </Formik>
-              </Box>
-            )}
-          </>
         )}
+
+        <Tabs variant="enclosed" isFitted>
+          <TabList bg="green.200">
+            <Tab>Pending Patients</Tab>
+            <Tab>Current Patient</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <Grid templateColumns={{ base: "1fr", md: "2fr 1fr" }} gap={6}>
+                <GridItem>
+                  {loading ? (
+                    <Spinner size="xl" />
+                  ) : (
+                    <>
+                      <Button
+                        colorScheme="blue"
+                        onClick={handleNextPatient}
+                        mb="20px"
+                        isDisabled={patients.length === 0}
+                      >
+                        Next Patient
+                      </Button>
+                      <Table
+                        variant="striped"
+                        colorScheme="teal"
+                        shadow="sm"
+                        mb="20px"
+                      >
+                        <Thead>
+                          <Tr>
+                            <Th>Serial Number</Th>
+                            <Th>Patient Name</Th>
+                            <Th>Time of Registration</Th>
+                            <Th>Patient ID</Th>
+                          </Tr>
+                        </Thead>
+                        <Tbody>
+                          {patients.map((visit, index) => (
+                            <Tr key={visit.patientId._id}>
+                              <Td>{index + 1}</Td>
+                              <Td>{visit.patientId.patientName}</Td>
+                              <Td>
+                                {new Date(visit.date).toLocaleTimeString()}
+                              </Td>
+                              <Td>{visit.patientId._id}</Td>
+                            </Tr>
+                          ))}
+                        </Tbody>
+                      </Table>
+                    </>
+                  )}
+                </GridItem>
+                <GridItem>
+                  <Text fontSize="lg" mb="4">
+                    Total Patients: {totalPatients}
+                  </Text>
+                </GridItem>
+              </Grid>
+            </TabPanel>
+
+            <TabPanel>
+              {currentPatient ? (
+                <Box bg="gray.50" p={6} rounded="md" shadow="md">
+                  <Heading fontSize="24px" mb="4">
+                    Current Patient Details
+                  </Heading>
+                  <Text mb="4">
+                    <strong>Name:</strong> {currentPatient.name}
+                  </Text>
+                  <Formik
+                    initialValues={{
+                      prescription: "",
+                      tests: [""],
+                      medicines: [{ name: "", dosage: "", days: "" }],
+                    }}
+                    onSubmit={handleSubmit}
+                  >
+                    {({ values, handleChange }) => (
+                      <Form>
+                        <VStack spacing={4} align="stretch">
+                          <FormControl>
+                            <FormLabel>Doctor's Prescription</FormLabel>
+                            <Textarea
+                              name="prescription"
+                              value={values.prescription}
+                              onChange={handleChange}
+                            />
+                          </FormControl>
+
+                          <FormControl>
+                            <FormLabel>Tests Required</FormLabel>
+                            <FieldArray name="tests">
+                              {({ push, remove }) => (
+                                <VStack spacing={2}>
+                                  {values.tests.map((test, index) => (
+                                    <HStack key={index} w="100%">
+                                      <Input
+                                        name={`tests[${index}]`}
+                                        value={test}
+                                        onChange={handleChange}
+                                        placeholder="Enter test"
+                                      />
+                                      <IconButton
+                                        icon={<FaTrash />}
+                                        onClick={() => remove(index)}
+                                        colorScheme="red"
+                                        variant="outline"
+                                      />
+                                    </HStack>
+                                  ))}
+                                  <Button
+                                    onClick={() => push("")}
+                                    colorScheme="blue"
+                                    variant="outline"
+                                  >
+                                    Add Test
+                                  </Button>
+                                </VStack>
+                              )}
+                            </FieldArray>
+                          </FormControl>
+
+                          <FormControl>
+                            <FormLabel>Medicines</FormLabel>
+                            <FieldArray name="medicines">
+                              {({ push, remove }) => (
+                                <VStack spacing={2}>
+                                  {values.medicines.map((medicine, index) => (
+                                    <HStack key={index} w="100%">
+                                      <Input
+                                        name={`medicines[${index}].name`}
+                                        value={medicine.name}
+                                        onChange={handleChange}
+                                        placeholder="Medicine Name"
+                                      />
+                                      <Input
+                                        name={`medicines[${index}].dosage`}
+                                        value={medicine.dosage}
+                                        onChange={handleChange}
+                                        placeholder="Dosage per Day"
+                                      />
+                                      <Input
+                                        name={`medicines[${index}].days`}
+                                        value={medicine.days}
+                                        onChange={handleChange}
+                                        placeholder="Total Days"
+                                      />
+                                      <IconButton
+                                        icon={<FaTrash />}
+                                        onClick={() => remove(index)}
+                                        colorScheme="red"
+                                        variant="outline"
+                                      />
+                                    </HStack>
+                                  ))}
+                                  <Button
+                                    onClick={() =>
+                                      push({ name: "", dosage: "", days: "" })
+                                    }
+                                    colorScheme="blue"
+                                    variant="outline"
+                                  >
+                                    Add Medicine
+                                  </Button>
+                                </VStack>
+                              )}
+                            </FieldArray>
+                          </FormControl>
+
+                          <Button type="submit" colorScheme="green">
+                            Submit
+                          </Button>
+                        </VStack>
+                      </Form>
+                    )}
+                  </Formik>
+                </Box>
+              ) : (
+                <Text>No current patient selected</Text>
+              )}
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </Box>
     </Container>
   );

@@ -15,8 +15,10 @@ import {
   Text,
   Flex,
   Heading,
+  Image,
 } from "@chakra-ui/react";
 import { FaUser, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const borderColor = "#e2e8f0"; // Light gray border color
 const focusBorderColor = "#3182ce"; // Blue color for focus
@@ -24,31 +26,48 @@ const errorBorderColor = "red.500"; // Red color for error
 const filledBackgroundColor = "#e8f0fe"; // Blue background color for filled input
 
 const Login = () => {
+  const navigate = useNavigate();
+  const [employeeRole, setEmployeeRole] = useState("");
+
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const formik = useFormik({
     initialValues: {
-      nic: "",
+      NIC: "",
       password: "",
     },
     validationSchema: Yup.object({
-      nic: Yup.string()
-        .required("Required")
-        .length(13, "NIC must be exactly 13 characters long"),
-      password: Yup.string().required("Required").trim(),
+      NIC: Yup.string().required().length(13),
+      password: Yup.string().required(),
     }),
     onSubmit: async (values) => {
-      try {
-        await axios.post("http://localhost:3000/api/v1/login", values);
-        setSuccessMessage("Login successful!");
-        setErrorMessage("");
-        formik.resetForm();
-      } catch (error) {
-        setErrorMessage("Login failed. Please check your credentials.");
-        setSuccessMessage("");
-      }
+      axios
+        .post("http://localhost:3000/api/v1/employee/login", values)
+        .then((response) => {
+          localStorage.setItem("user", JSON.stringify(response.data.employee));
+          localStorage.setItem("token", JSON.stringify(response.data.token));
+          const user = JSON.parse(localStorage.getItem("user"));
+          let userRole;
+          if (user) {
+            userRole = user.occupation;
+            navigate(`/${userRole}`);
+          }
+
+          // if (userRole === "doctor") {
+          //   navigate("/doctor");
+          // }
+          // if (userRole === "receptionist") {
+          //   navigate("/receptionist");
+          // }
+          // setSuccessMessage("Patient Login");
+          // setErrorMessage("");
+        })
+        .catch((error) => {
+          setErrorMessage(error.response.data.message);
+          setSuccessMessage("");
+        });
     },
   });
 
@@ -75,110 +94,136 @@ const Login = () => {
   };
 
   return (
-    <Container maxWidth="70%" mx="auto" py={20}>
-      <Box
-        bg="white"
-        p={6}
-        rounded="md"
-        shadow="md"
-        borderWidth="1px"
-        borderColor={borderColor}
-        mx="auto"
+    <Container maxWidth="95%" mx="auto">
+      <Flex
+        direction={{ base: "column", md: "row" }}
+        justify="center"
+        h="90vh"
+        gap={5}
       >
-        <Heading textAlign="center" mb={3} fontSize="24px">
-          Login
-        </Heading>
-        {successMessage && (
-          <Alert status="success" mb={2}>
-            <AlertIcon />
-            {successMessage}
-          </Alert>
-        )}
-        {errorMessage && (
-          <Alert status="error" mb={2}>
-            <AlertIcon />
-            {errorMessage}
-          </Alert>
-        )}
-        <form onSubmit={formik.handleSubmit}>
-          <Box display="flex" flexDirection="column" gap={4}>
-            <Box>
-              <FormControl isInvalid={formik.errors.nic && formik.touched.nic}>
-                <FormLabel htmlFor="nic" fontSize="sm">
-                  <Icon as={FaUser} mr={2} />
-                  <Text as="span" color="red.500">
-                    *
-                  </Text>{" "}
-                  NIC
-                </FormLabel>
-                <Input
-                  id="nic"
-                  {...formik.getFieldProps("nic")}
-                  {...getInputStyles("nic")}
-                  borderWidth="1px"
-                  borderRadius="md"
-                  p={2}
-                  height="30px"
-                  fontSize="sm"
-                />
-              </FormControl>
-            </Box>
-            <Box>
-              <FormControl
-                isInvalid={formik.errors.password && formik.touched.password}
-              >
-                <FormLabel htmlFor="password" fontSize="sm">
-                  <Icon as={FaLock} mr={2} />
-                  <Text as="span" color="red.500">
-                    *
-                  </Text>{" "}
-                  Password
-                </FormLabel>
-                <Flex>
+        {/* Image Section */}
+        <Box
+          flex="1"
+          display={{ base: "none", md: "block" }} // Hide on mobile
+        >
+          <Box
+            rounded={5}
+            mt={3}
+            bgImage={"/login-screen.jpg"}
+            bgPosition="center"
+            bgRepeat="no-repeat"
+            backgroundSize="cover"
+            style={{ width: "100%", height: "95%", objectFit: "cover" }}
+          />
+        </Box>
+        {/* Form Section */}
+        <Box
+          justifySelf="center"
+          alignSelf="center"
+          bg="white"
+          h="100%"
+          p={6}
+          flex="1"
+          maxWidth={{ base: "100%", md: "50%" }}
+          mb={{ base: 6, md: 0 }}
+        >
+          <Heading textAlign="center" mt={20} mb={3} fontSize="24px">
+            Login
+          </Heading>
+          {successMessage && (
+            <Alert status="success" mb={2}>
+              <AlertIcon />
+              {successMessage}
+            </Alert>
+          )}
+          {errorMessage && (
+            <Alert status="error" mb={2}>
+              <AlertIcon />
+              {errorMessage}
+            </Alert>
+          )}
+          <form onSubmit={formik.handleSubmit}>
+            <Box display="flex" flexDirection="column" gap={4}>
+              <Box>
+                <FormControl
+                  isInvalid={formik.errors.NIC && formik.touched.NIC}
+                >
+                  <FormLabel htmlFor="NIC" fontSize="sm">
+                    <Icon as={FaUser} mr={2} />
+                    <Text as="span" color="red.500">
+                      *
+                    </Text>{" "}
+                    NIC
+                  </FormLabel>
                   <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    {...formik.getFieldProps("password")}
-                    {...getInputStyles("password")}
+                    id="NIC"
+                    {...formik.getFieldProps("NIC")}
+                    {...getInputStyles("NIC")}
                     borderWidth="1px"
                     borderRadius="md"
                     p={2}
                     height="30px"
                     fontSize="sm"
-                    flex="1"
                   />
-                  <Button
-                    variant="link"
-                    colorScheme="teal"
-                    onClick={() => setShowPassword(!showPassword)}
-                    ml={-10} // Adjust margin to align the button correctly
-                  >
-                    <Icon as={showPassword ? FaEyeSlash : FaEye} />
-                  </Button>
-                </Flex>
-              </FormControl>
+                </FormControl>
+              </Box>
+              <Box>
+                <FormControl
+                  isInvalid={formik.errors.password && formik.touched.password}
+                >
+                  <FormLabel htmlFor="password" fontSize="sm">
+                    <Icon as={FaLock} mr={2} />
+                    <Text as="span" color="red.500">
+                      *
+                    </Text>{" "}
+                    Password
+                  </FormLabel>
+                  <Flex>
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      {...formik.getFieldProps("password")}
+                      {...getInputStyles("password")}
+                      borderWidth="1px"
+                      borderRadius="md"
+                      p={2}
+                      height="30px"
+                      fontSize="sm"
+                      flex="1"
+                    />
+                    <Button
+                      variant="link"
+                      colorScheme="teal"
+                      onClick={() => setShowPassword(!showPassword)}
+                      ml={-10} // Adjust margin to align the button correctly
+                    >
+                      <Icon as={showPassword ? FaEyeSlash : FaEye} />
+                    </Button>
+                  </Flex>
+                </FormControl>
+              </Box>
+              <Flex mt={4} gap="10px" align="center" justify="center">
+                <Button
+                  flex="1"
+                  variant="outline"
+                  colorScheme="teal"
+                  onClick={handleClearAll}
+                >
+                  Clear All
+                </Button>
+                <Button
+                  flex="1"
+                  colorScheme="teal"
+                  type="submit"
+                  isLoading={formik.isSubmitting}
+                >
+                  Login
+                </Button>
+              </Flex>
             </Box>
-            <Flex mt={4} gap="10px" align="center" justify="space-between">
-              <Button
-                flex="1"
-                variant="outline"
-                colorScheme="teal"
-                onClick={handleClearAll}
-              >
-                Clear All
-              </Button>
-              <Button
-                flex="1"
-                colorScheme="teal"
-                type="submit"
-                isLoading={formik.isSubmitting}
-              >
-                Login
-              </Button>
-            </Flex>
-          </Box>
-        </form>
-      </Box>
+          </form>
+        </Box>
+      </Flex>
     </Container>
   );
 };

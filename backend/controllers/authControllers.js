@@ -25,6 +25,7 @@ const createEmployee = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
     console.log(req.body);
+
     const { NIC, password } = req.body;
     if (!NIC || !password) {
       return next(new AppError("please provide NIC and Password"));
