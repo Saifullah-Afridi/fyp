@@ -27,7 +27,7 @@ const WaitingRoom = () => {
     const fetchPatients = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/v1/patient"
+          "http://localhost:3000/api/v1/patient/today-patients"
         );
         const today = new Date().toISOString().split("T")[0];
         const todayPatients = response.data.patients.filter((patient) => {

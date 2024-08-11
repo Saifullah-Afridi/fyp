@@ -2,15 +2,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import RegistrationForm from "./pages/RegistrationForm";
 import LoginPage from "./pages/LoginPage";
 import AdminLayout from "./layouts/adminLayout/AdminLayout";
-import DoctorPage from "./pages/DoctorPage";
-import PatientList from "./pages/PatientList";
 import WaitingRoom from "./pages/WaitingRoom";
 import EditEmployee from "./components/EditEmployee";
 import ReceptionistPrivateRoutes from "./components/ReceptionistPrivateRoutes";
-import Header from "./components/Header";
 import AdminPrivateRoutes from "./components/AdminPrivateRoutes";
 import DoctorPrivateRoute from "./components/DoctorPrivateRoute";
 import RoutesWithHeader from "./components/RoutesWithHeader";
+import Doctor from "./pages/doctor/Doctor";
 
 const App = () => {
   return (
@@ -31,17 +29,11 @@ const App = () => {
               </ReceptionistPrivateRoutes>
             }
           />
-
-          {/* docots routes */}
-          <Route
-            path="/doctor"
-            element={
-              <DoctorPrivateRoute>
-                <DoctorPage />
-              </DoctorPrivateRoute>
-            }
-          />
         </Route>
+
+        {/* docots routes */}
+        <Route path="/doctor" element={<Doctor />}></Route>
+
         {/* admin routes  */}
         <Route element={<AdminPrivateRoutes />}>
           <Route path="/admin" element={<AdminLayout />}>

@@ -14,24 +14,25 @@ exports.registerOrUpdatePatient = async (req, res, next) => {
     // Check if the patient has been registered today
     const today = new Date().toISOString().split("T")[0];
     const existingVisit = await Visit.findOne({
-      patientId: patient._id,
+      patient: patient._id,
       date: {
         $gte: new Date(`${today}T00:00:00.000Z`),
         $lt: new Date(`${today}T23:59:59.999Z`),
       },
     });
     if (existingVisit) {
-      return res.status(200).json({
-        status: "success",
-        patient,
-        message: "Patient is already registered for today.",
-      });
+      // return res.status(200).json({
+      //   status: "success",
+      //   patient,
+      //   message: "Patient is already registered for today.",
+      // });
+      return next(new AppError("Patient is already registerd for today"));
     }
     // Create visit record for today
-    const visit = await Visit.create({ patientId: patient._id });
-    res.status(200).json({ status: "success", patient, visit });
+    const visit = await Visit.create({ patient: patient._id });
+    res.status(200).json({ status: "success", visit });
   } catch (error) {
-    next(error);
+    next(new AppError(error.message));
   }
 };
 
@@ -43,7 +44,7 @@ exports.getTodaysPatients = async (req, res, next) => {
         $gte: new Date(`${today}T00:00:00.000Z`),
         $lt: new Date(`${today}T23:59:59.999Z`),
       },
-    }).populate("patientId");
+    }).populate("patient");
 
     res.status(200).json({ status: "success", visits });
   } catch (error) {

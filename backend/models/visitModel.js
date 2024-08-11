@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const visitSchema = new mongoose.Schema({
-  patientId: { type: mongoose.Schema.Types.ObjectId, ref: "Patient" },
+  patient: { type: mongoose.Schema.Types.ObjectId, ref: "Patient" },
   date: { type: Date, default: Date.now },
   prescription: String,
   tests: [String],

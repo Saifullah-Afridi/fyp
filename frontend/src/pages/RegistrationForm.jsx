@@ -5,8 +5,6 @@ import * as Yup from "yup";
 import {
   Container,
   Heading,
-  Grid,
-  GridItem,
   Box,
   FormLabel,
   FormControl,
@@ -17,6 +15,8 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  Flex,
+  HStack,
 } from "@chakra-ui/react";
 import {
   FaUser,
@@ -64,6 +64,8 @@ const RegistrationForm = () => {
         .max(15, "Maximum length should be 15 characters"),
       age: Yup.number()
         .required("Required")
+        .min(1)
+        .max(200)
         .positive("Age must be a positive number")
         .integer("Age must be an integer"),
       phoneNumber: Yup.string()
@@ -75,37 +77,21 @@ const RegistrationForm = () => {
     }),
     onSubmit: async (values) => {
       try {
-        // Check if patient exists
-        const patientResponse = await axios.get(
-          `http://localhost:3000/api/v1/patient?nic=${values.NIC}`
+        // Register or update patient and create a visit record
+        const response = await axios.post(
+          "http://localhost:3000/api/v1/patient",
+          values
         );
 
-        if (patientResponse.data.exists) {
-          // If patient exists, create/update visit record
-          await axios.post("http://localhost:3000/api/v1/visit", {
-            patientId: patientResponse.data.patient._id,
-            visitDate: new Date().toISOString().split("T")[0], // today's date
-          });
-        } else {
-          // If patient does not exist, register patient and create visit record
-          const newPatientResponse = await axios.post(
-            "http://localhost:3000/api/v1/patient",
-            values
-          );
-          await axios.post("http://localhost:3000/api/v1/visit/record", {
-            patientId: newPatientResponse.data.patient._id,
-            visitDate: new Date().toISOString().split("T")[0], // today's date
-          });
+        if (response.data.status === "success") {
+          setSuccessMessage("Patient registration is successful");
+          setErrorMessage("");
+
+          // Reset form fields
+          formik.resetForm();
         }
-
-        setSuccessMessage("Patient registration is successful");
-        setErrorMessage("");
-
-        // Reset form fields
-        formik.resetForm();
       } catch (error) {
-        console.error("Registration error:", error);
-        setErrorMessage("Failed to register patient");
+        setErrorMessage(error.response.data.message);
         setSuccessMessage("");
       }
     },
@@ -155,9 +141,15 @@ const RegistrationForm = () => {
     }
   };
 
-  // Helper function to determine the background color of the input
   const getInputStyles = (fieldName) => {
-    const isFilled = formik.values[fieldName]?.trim().length > 0;
+    // Ensure fieldName is a string and not undefined
+    if (typeof fieldName !== "string") {
+      return {};
+    }
+
+    const value = formik.values[fieldName];
+    const isFilled =
+      typeof value === "string" ? value.trim().length > 0 : value != null; // Check for filled value
     const isError = formik.errors[fieldName] && formik.touched[fieldName];
     const backgroundColor = isError
       ? "red.50"
@@ -203,9 +195,9 @@ const RegistrationForm = () => {
               }}
               borderWidth="1px"
               borderRadius="md"
-              p={2} // Reduced padding for smaller height
-              height="30px" // Set specific height
-              fontSize="sm" // Smaller font size
+              p={2}
+              height="30px"
+              fontSize="sm"
             />
             <InputRightElement>
               <Button
@@ -222,143 +214,156 @@ const RegistrationForm = () => {
           </InputGroup>
         </Box>
         <form onSubmit={formik.handleSubmit}>
-          <Grid templateColumns="repeat(2, 1fr)" gap={6}>
-            <GridItem>
-              <FormControl
-                isInvalid={
-                  formik.errors.patientName && formik.touched.patientName
-                }
+          <Flex direction="column" gap={1}>
+            <Flex direction="row" alignItems="center" gap={4} mb={3}>
+              <Box flex="1">
+                <FormControl
+                  isInvalid={
+                    formik.errors.patientName && formik.touched.patientName
+                  }
+                >
+                  <FormLabel htmlFor="patientName" fontSize="sm">
+                    <span style={{ color: "red" }}>*</span>{" "}
+                    <Icon as={FaUser} mr={2} /> Patient Name
+                  </FormLabel>
+                  <Input
+                    id="patientName"
+                    {...formik.getFieldProps("patientName")}
+                    {...getInputStyles("patientName")}
+                    borderWidth="1px"
+                    borderRadius="md"
+                    p={2}
+                    height="30px"
+                    fontSize="sm"
+                  />
+                </FormControl>
+              </Box>
+              <Box flex="1">
+                <FormControl
+                  isInvalid={formik.errors.NIC && formik.touched.NIC}
+                >
+                  <FormLabel htmlFor="NIC" fontSize="sm">
+                    <span style={{ color: "red" }}>*</span>{" "}
+                    <Icon as={FaIdCard} mr={2} /> NIC
+                  </FormLabel>
+                  <Input
+                    id="NIC"
+                    {...formik.getFieldProps("NIC")}
+                    {...getInputStyles("NIC")}
+                    borderWidth="1px"
+                    borderRadius="md"
+                    p={2}
+                    height="30px"
+                    fontSize="sm"
+                  />
+                </FormControl>
+              </Box>
+            </Flex>
+            <Flex direction="row" alignItems="center" gap={4} mb={3}>
+              <Box flex="1">
+                <FormControl
+                  isInvalid={formik.errors.address && formik.touched.address}
+                >
+                  <FormLabel htmlFor="address" fontSize="sm">
+                    <span style={{ color: "red" }}>*</span>{" "}
+                    <Icon as={FaMapMarkerAlt} mr={2} /> Address
+                  </FormLabel>
+                  <Input
+                    id="address"
+                    {...formik.getFieldProps("address")}
+                    {...getInputStyles("address")}
+                    borderWidth="1px"
+                    borderRadius="md"
+                    p={2}
+                    height="30px"
+                    fontSize="sm"
+                  />
+                </FormControl>
+              </Box>
+              <Box flex="1">
+                <FormControl
+                  isInvalid={
+                    formik.errors.guardianName && formik.touched.guardianName
+                  }
+                >
+                  <FormLabel htmlFor="guardianName" fontSize="sm">
+                    <span style={{ color: "red" }}>*</span>{" "}
+                    <Icon as={FaUserShield} mr={2} /> Guardian Name
+                  </FormLabel>
+                  <Input
+                    id="guardianName"
+                    {...formik.getFieldProps("guardianName")}
+                    {...getInputStyles("guardianName")}
+                    borderWidth="1px"
+                    borderRadius="md"
+                    p={2}
+                    height="30px"
+                    fontSize="sm"
+                  />
+                </FormControl>
+              </Box>
+            </Flex>
+            <Flex direction="row" alignItems="center" gap={4} mb={3}>
+              <Box flex="1">
+                <FormControl
+                  isInvalid={formik.errors.age && formik.touched.age}
+                >
+                  <FormLabel htmlFor="age" fontSize="sm">
+                    <span style={{ color: "red" }}>*</span>{" "}
+                    <Icon as={FaCalendarAlt} mr={2} /> Age
+                  </FormLabel>
+                  <Input
+                    id="age"
+                    type="number"
+                    {...formik.getFieldProps("age")}
+                    {...getInputStyles("age")}
+                    borderWidth="1px"
+                    borderRadius="md"
+                    p={2}
+                    height="30px"
+                    fontSize="sm"
+                  />
+                </FormControl>
+              </Box>
+              <Box flex="1">
+                <FormControl
+                  isInvalid={
+                    formik.errors.phoneNumber && formik.touched.phoneNumber
+                  }
+                >
+                  <FormLabel htmlFor="phoneNumber" fontSize="sm">
+                    <span style={{ color: "red" }}>*</span>{" "}
+                    <Icon as={FaPhone} mr={2} /> Phone Number
+                  </FormLabel>
+                  <Input
+                    id="phoneNumber"
+                    {...formik.getFieldProps("phoneNumber")}
+                    {...getInputStyles("phoneNumber")}
+                    borderWidth="1px"
+                    borderRadius="md"
+                    p={2}
+                    height="30px"
+                    fontSize="sm"
+                  />
+                </FormControl>
+              </Box>
+            </Flex>
+            <HStack>
+              <Button
+                type="button"
+                colorScheme="red"
+                mt={2}
+                width="full"
+                variant="outline"
+                onClick={handleClearAll}
               >
-                <FormLabel htmlFor="patientName" fontSize="sm">
-                  <Icon as={FaUser} mr={2} /> Patient Name
-                </FormLabel>
-                <Input
-                  id="patientName"
-                  {...formik.getFieldProps("patientName")}
-                  {...getInputStyles("patientName")}
-                  borderWidth="1px"
-                  borderRadius="md"
-                  p={2} // Reduced padding for smaller height
-                  height="30px" // Set specific height
-                  fontSize="sm" // Smaller font size
-                />
-              </FormControl>
-            </GridItem>
-            <GridItem>
-              <FormControl isInvalid={formik.errors.NIC && formik.touched.NIC}>
-                <FormLabel htmlFor="NIC" fontSize="sm">
-                  <Icon as={FaIdCard} mr={2} /> NIC
-                </FormLabel>
-                <Input
-                  id="NIC"
-                  {...formik.getFieldProps("NIC")}
-                  {...getInputStyles("NIC")}
-                  borderWidth="1px"
-                  borderRadius="md"
-                  p={2} // Reduced padding for smaller height
-                  height="30px" // Set specific height
-                  fontSize="sm" // Smaller font size
-                />
-              </FormControl>
-            </GridItem>
-            <GridItem>
-              <FormControl
-                isInvalid={formik.errors.address && formik.touched.address}
-              >
-                <FormLabel htmlFor="address" fontSize="sm">
-                  <Icon as={FaMapMarkerAlt} mr={2} /> Address
-                </FormLabel>
-                <Input
-                  id="address"
-                  {...formik.getFieldProps("address")}
-                  {...getInputStyles("address")}
-                  borderWidth="1px"
-                  borderRadius="md"
-                  p={2} // Reduced padding for smaller height
-                  height="30px" // Set specific height
-                  fontSize="sm" // Smaller font size
-                />
-              </FormControl>
-            </GridItem>
-            <GridItem>
-              <FormControl
-                isInvalid={
-                  formik.errors.guardianName && formik.touched.guardianName
-                }
-              >
-                <FormLabel htmlFor="guardianName" fontSize="sm">
-                  <Icon as={FaUserShield} mr={2} /> Guardian Name
-                </FormLabel>
-                <Input
-                  id="guardianName"
-                  {...formik.getFieldProps("guardianName")}
-                  {...getInputStyles("guardianName")}
-                  borderWidth="1px"
-                  borderRadius="md"
-                  p={2} // Reduced padding for smaller height
-                  height="30px" // Set specific height
-                  fontSize="sm" // Smaller font size
-                />
-              </FormControl>
-            </GridItem>
-            <GridItem>
-              <FormControl isInvalid={formik.errors.age && formik.touched.age}>
-                <FormLabel htmlFor="age" fontSize="sm">
-                  <Icon as={FaCalendarAlt} mr={2} /> Age
-                </FormLabel>
-                <Input
-                  id="age"
-                  {...formik.getFieldProps("age")}
-                  {...getInputStyles("age")}
-                  borderWidth="1px"
-                  borderRadius="md"
-                  p={2} // Reduced padding for smaller height
-                  height="30px" // Set specific height
-                  fontSize="sm" // Smaller font size
-                />
-              </FormControl>
-            </GridItem>
-            <GridItem>
-              <FormControl
-                isInvalid={
-                  formik.errors.phoneNumber && formik.touched.phoneNumber
-                }
-              >
-                <FormLabel htmlFor="phoneNumber" fontSize="sm">
-                  <Icon as={FaPhone} mr={2} /> Phone Number
-                </FormLabel>
-                <Input
-                  id="phoneNumber"
-                  {...formik.getFieldProps("phoneNumber")}
-                  {...getInputStyles("phoneNumber")}
-                  borderWidth="1px"
-                  borderRadius="md"
-                  p={2} // Reduced padding for smaller height
-                  height="30px" // Set specific height
-                  fontSize="sm" // Smaller font size
-                />
-              </FormControl>
-            </GridItem>
-          </Grid>
-          <Box
-            textAlign="center"
-            mt={3}
-            display="flex"
-            justifyContent="flex-end"
-          >
-            <Button
-              type="button"
-              colorScheme="red"
-              onClick={handleClearAll}
-              aria-label="Clear"
-              mr={4}
-            >
-              Clear All
-            </Button>
-            <Button type="submit" colorScheme="teal" aria-label="Submit">
-              Submit
-            </Button>
-          </Box>
+                Clear All
+              </Button>
+              <Button type="submit" colorScheme="teal" mt={2} width="full">
+                Register
+              </Button>
+            </HStack>
+          </Flex>
         </form>
       </Box>
     </Container>

@@ -178,7 +178,7 @@ const Login = () => {
                     </Text>{" "}
                     Password
                   </FormLabel>
-                  <Flex>
+                  <Box position="relative">
                     <Input
                       id="password"
                       type={showPassword ? "text" : "password"}
@@ -195,13 +195,18 @@ const Login = () => {
                       variant="link"
                       colorScheme="teal"
                       onClick={() => setShowPassword(!showPassword)}
-                      ml={-10} // Adjust margin to align the button correctly
+                      position="absolute"
+                      right="2"
+                      top="50%"
+                      transform="translateY(-50%)"
+                      zIndex="1"
                     >
                       <Icon as={showPassword ? FaEyeSlash : FaEye} />
                     </Button>
-                  </Flex>
+                  </Box>
                 </FormControl>
               </Box>
+
               <Flex mt={4} gap="10px" align="center" justify="center">
                 <Button
                   flex="1"
