@@ -24,8 +24,103 @@ import { FaPlus, FaMinus } from "react-icons/fa";
 import { toast } from "react-toastify";
 import axios from "axios";
 
-const availableMedicines = ["Aspirin", "Paracetamol", "Ibuprofen"]; // Example medicine list
-
+const availableMedicines = [
+  "Aspirin",
+  "Paracetamol",
+  "Ibuprofen",
+  "Amoxicillin",
+  "Azithromycin",
+  "Metformin",
+  "Lisinopril",
+  "Atorvastatin",
+  "Losartan",
+  "Hydrochlorothiazide",
+  "Omeprazole",
+  "Simvastatin",
+  "Gabapentin",
+  "Cetirizine",
+  "Diphenhydramine",
+  "Loratadine",
+  "Ranitidine",
+  "Naproxen",
+  "Tramadol",
+  "Hydrocodone",
+  "Codeine",
+  "Clopidogrel",
+  "Warfarin",
+  "Furosemide",
+  "Hydrochlorothiazide",
+  "Prednisone",
+  "Dexamethasone",
+  "Methylprednisolone",
+  "Albuterol",
+  "Fluticasone",
+  "Budesonide",
+  "Salbutamol",
+  "Levofloxacin",
+  "Doxycycline",
+  "Ciprofloxacin",
+  "Metronidazole",
+  "Clarithromycin",
+  "Lorazepam",
+  "Diazepam",
+  "Clonazepam",
+  "Temazepam",
+  "Sertraline",
+  "Fluoxetine",
+  "Citalopram",
+  "Escitalopram",
+  "Venlafaxine",
+  "Duloxetine",
+  "Bupropion",
+  "Trazodone",
+  "Mirtazapine",
+  "Atenolol",
+  "Metoprolol",
+  "Propranolol",
+  "Carvedilol",
+  "Bisoprolol",
+  "Enalapril",
+  "Ramipril",
+  "Perindopril",
+  "Ezetimibe",
+  "Niacin",
+  "Fenofibrate",
+  "Lovastatin",
+  "Rosuvastatin",
+  "Nifedipine",
+  "Amlodipine",
+  "Verapamil",
+  "Diltiazem",
+  "Sildenafil",
+  "Tadalafil",
+  "Vardenafil",
+  "Lorazepam",
+  "Buspirone",
+  "Hydroxyzine",
+  "Pregabalin",
+  "Ropinirole",
+  "Pramipexole",
+  "Latanoprost",
+  "Timolol",
+  "Brimonidine",
+  "Travoprost",
+  "Bimatoprost",
+  "Diphenhydramine",
+  "Hydroxyzine",
+  "Fexofenadine",
+  "Chlorpheniramine",
+  "Desloratadine",
+  "Mometasone",
+  "Beclometasone",
+  "Flunisolide",
+  "Rivastigmine",
+  "Donepezil",
+  "Galantamine",
+  "Memantine",
+  "Sumatriptan",
+  "Rizatriptan",
+]; // Example medicine list
 const PrescriptionModal = ({ isOpen, onClose, patient }) => {
   const [medicineSuggestions, setMedicineSuggestions] = useState([]);
   const [currentMedicineInput, setCurrentMedicineInput] = useState("");
@@ -45,25 +140,32 @@ const PrescriptionModal = ({ isOpen, onClose, patient }) => {
         duration: Yup.string().required("Duration is required"),
       })
     ),
-    tests: Yup.array().of(Yup.string().required("Test is required")),
+    tests: Yup.array().of(Yup.string()),
   });
 
-  const handleSubmit = async (values) => {
+  const handleSubmit = async (status, formik) => {
     try {
+      const values = {
+        prescription: formik.values.prescription,
+        medicines: formik.values.medicines,
+        tests: formik.values.tests,
+      };
       const res = await axios.patch(
         `http://localhost:3000/api/v1/visit/update-visit/${patient._id}`,
-        values
+        { ...values }
       );
-      if (res) {
-        toast.success("Prescription updated successfully");
+      const updateStatus = await axios.patch(
+        `http://localhost:3000/api/v1/visit/update-status/${patient._id}`,
+        { status }
+      );
+      if (res && updateStatus) {
+        toast.success(`Prescription updated and status set to ${status}`);
+        onClose(); // Close modal on successful update
       }
     } catch (error) {
       console.log(error);
-      toast.error(error);
-
-      // toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "An error occurred");
     }
-    // Implement submit logic here
   };
 
   const handleMedicineChange = (value, index, formik) => {
@@ -102,8 +204,6 @@ const PrescriptionModal = ({ isOpen, onClose, patient }) => {
       borderWidth: "1px", // Explicit border width to ensure it appears correctly
     };
   };
-  // console.log(patient);
-
   console.log(patient);
 
   return (
@@ -133,7 +233,7 @@ const PrescriptionModal = ({ isOpen, onClose, patient }) => {
               <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
-                onSubmit={handleSubmit}
+                onSubmit={(values) => handleSubmit("pending")} // Default to 'pending' on submit
               >
                 {(formik) => (
                   <Form
@@ -182,7 +282,7 @@ const PrescriptionModal = ({ isOpen, onClose, patient }) => {
                                     <Input
                                       width="250px"
                                       borderRadius="5px"
-                                      height="35px"
+                                      height="30px"
                                       value={medicine.medicineName}
                                       onChange={(e) => {
                                         handleMedicineInput(e.target.value);
@@ -246,7 +346,7 @@ const PrescriptionModal = ({ isOpen, onClose, patient }) => {
                                     name={`medicines.${index}.dosage`}
                                     placeholder="Dosage"
                                     size="sm"
-                                    height="35px"
+                                    height="30px"
                                     style={getInputStyles(
                                       formik,
                                       `medicines.${index}.dosage`
@@ -265,7 +365,7 @@ const PrescriptionModal = ({ isOpen, onClose, patient }) => {
                                     name={`medicines.${index}.duration`}
                                     placeholder="Duration"
                                     size="sm"
-                                    height="35px"
+                                    height="30px"
                                     style={getInputStyles(
                                       formik,
                                       `medicines.${index}.duration`
@@ -308,41 +408,35 @@ const PrescriptionModal = ({ isOpen, onClose, patient }) => {
                       </FormLabel>
                       <FieldArray name="tests">
                         {({ remove, push }) => (
-                          <Box mb={4}>
+                          <Box mb={3}>
                             {formik.values.tests.map((test, index) => (
-                              <Box key={index} mb={2} position="relative">
-                                <Stack
-                                  direction="row"
-                                  spacing={2}
-                                  align="center"
+                              <Flex key={index} mb={2} align="center">
+                                <FormControl
+                                  isInvalid={
+                                    formik.errors.tests && formik.touched.tests
+                                  }
                                 >
-                                  <FormControl
-                                    isInvalid={
-                                      formik.errors.tests?.[index] &&
-                                      formik.touched.tests?.[index]
-                                    }
-                                  >
-                                    <Field
-                                      as={Input}
-                                      name={`tests.${index}`}
-                                      placeholder="Test"
-                                      size="sm"
-                                      height="35px"
-                                      style={getInputStyles(
-                                        formik,
-                                        `tests.${index}`
-                                      )}
-                                    />
-                                  </FormControl>
-                                  <IconButton
-                                    aria-label="Remove test"
-                                    icon={<FaMinus />}
-                                    onClick={() => remove(index)}
+                                  <Field
+                                    as={Input}
+                                    name={`tests.${index}`}
+                                    placeholder="Test name"
                                     size="sm"
-                                    colorScheme="red"
+                                    height="30px"
+                                    style={getInputStyles(
+                                      formik,
+                                      `tests.${index}`
+                                    )}
                                   />
-                                </Stack>
-                              </Box>
+                                </FormControl>
+                                <IconButton
+                                  aria-label="Remove test"
+                                  icon={<FaMinus />}
+                                  onClick={() => remove(index)}
+                                  size="sm"
+                                  colorScheme="red"
+                                  ml={2}
+                                />
+                              </Flex>
                             ))}
                             <Button
                               leftIcon={<FaPlus />}
@@ -356,14 +450,32 @@ const PrescriptionModal = ({ isOpen, onClose, patient }) => {
                         )}
                       </FieldArray>
                     </FormControl>
-                    <Flex mt={3} gap={2}>
-                      <Button flex={1} colorScheme="red" onClick={onClose}>
+                    <Stack direction="row" spacing={4}>
+                      <Button
+                        flex={1}
+                        variant="outline"
+                        colorScheme="red"
+                        onClick={onClose}
+                      >
                         Cancel
                       </Button>
-                      <Button flex={1} colorScheme="blue" type="submit">
-                        Submit
+                      <Button
+                        flex={1}
+                        colorScheme="blue"
+                        type="button"
+                        onClick={() => handleSubmit("pending", formik)}
+                      >
+                        To Pending
                       </Button>
-                    </Flex>
+                      <Button
+                        flex={1}
+                        colorScheme="green"
+                        type="button"
+                        onClick={() => handleSubmit("complete", formik)}
+                      >
+                        Complete
+                      </Button>
+                    </Stack>
                   </Form>
                 )}
               </Formik>
