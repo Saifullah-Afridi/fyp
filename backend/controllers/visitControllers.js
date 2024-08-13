@@ -44,7 +44,7 @@ exports.getPatientAllVisits = async (req, res, next) => {
   }
 };
 
-exports.updateVisitStatus = async (req, res) => {
+exports.updateVisitStatus = async (req, res, next) => {
   const { visitId } = req.params;
   const { status } = req.body;
 
@@ -67,6 +67,18 @@ exports.updateVisitStatus = async (req, res) => {
       status: "success",
       visit,
     });
+  } catch (error) {
+    next(new AppError(error.message));
+  }
+};
+
+exports.getSingleVisit = async (req, res, next) => {
+  try {
+    const visit = await Visit.findById(req.params.id);
+    if (!visit) {
+      return next(new AppError("No visit is found with this id", 404));
+    }
+    res.status(200).json({ status: "success", visit });
   } catch (error) {
     next(new AppError(error.message, 500));
   }

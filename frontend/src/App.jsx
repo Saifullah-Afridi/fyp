@@ -9,6 +9,8 @@ import AdminPrivateRoutes from "./components/AdminPrivateRoutes";
 import DoctorPrivateRoute from "./components/DoctorPrivateRoute";
 import RoutesWithHeader from "./components/RoutesWithHeader";
 import Doctor from "./pages/doctor/Doctor";
+import DoctorDashboard from "./pages/doctor/DoctorDashboard";
+import VisitDetails from "./pages/doctor/VisitDetails";
 
 const App = () => {
   return (
@@ -32,7 +34,7 @@ const App = () => {
         </Route>
 
         {/* docots routes */}
-        <Route path="/doctor" element={<Doctor />}></Route>
+        <Route path="/doctor" element={<DoctorDashboard />}></Route>
 
         {/* admin routes  */}
         <Route element={<AdminPrivateRoutes />}>
@@ -40,6 +42,8 @@ const App = () => {
             <Route path="edit-employee/:id" element={<EditEmployee />} />
           </Route>
         </Route>
+        {/* <Route path="/today-patients" element={<DoctorDashboard />} />
+        <Route path="/visit/:id" element={<VisitDetails />} /> */}
       </Routes>
     </BrowserRouter>
   );
