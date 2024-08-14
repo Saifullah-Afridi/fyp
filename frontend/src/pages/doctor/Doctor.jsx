@@ -1,143 +1,55 @@
-import React, { useState, useEffect } from "react";
-import {
-  Tabs,
-  TabList,
-  TabPanels,
-  Tab,
-  TabPanel,
-  Box,
-  Heading,
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  Button,
-  Spinner,
-  Alert,
-  AlertIcon,
-  useDisclosure,
-} from "@chakra-ui/react";
-import axios from "axios";
-import { FaPrescriptionBottle } from "react-icons/fa";
-import PrescriptionModal from "./PrescriptionModal"; // Import your modal component
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { Box } from "@chakra-ui/react";
+import { Sidebar } from "../../components/Sidebar";
+import CreateReceptionist from "../../pages/admin/CreateReceptionist";
+import CreateDoctor from "../../pages/admin/CreateDoctor";
+import Employees from "../../pages/admin/Employees";
+import PatientSummary from "../../pages/admin/PatientSummary";
+import EditEmployee from "../../components/EditEmployee";
 
-const DoctorPage = () => {
-  const [pendingPatients, setPendingPatients] = useState([]);
-  const [currentPatient, setCurrentPatient] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false); // State to manage modal visibility
-
-  const fetchPendingPatients = async () => {
-    try {
-      const response = await axios.get(
-        "http://localhost:3000/api/v1/patient/todays-patients"
-      );
-      setPendingPatients(response.data.visits);
-      setLoading(false);
-    } catch (err) {
-      setError("Failed to fetch pending patients");
-      setLoading(false);
-    }
-  };
+const Doctor = () => {
+  const location = useLocation();
+  const [tab, setTab] = useState(null);
+  const [employeeId, setEmployeeId] = useState(null);
 
   useEffect(() => {
-    fetchPendingPatients();
-  }, []);
-
-  const handlePrescribeClick = (patient) => {
-    setCurrentPatient(patient);
-    setIsModalOpen(true); // Show the modal when the button is clicked
-  };
+    const path = location.pathname;
+    if (path.startsWith("/admin/edit-employee/")) {
+      setTab("edit-employee");
+      setEmployeeId(path.split("/").pop()); // Extract ID from URL
+    } else {
+      const queryString = new URLSearchParams(location.search);
+      const newTab = queryString.get("tab");
+      setTab(newTab);
+      setEmployeeId(null); // Reset employeeId when not editing
+    }
+  }, [location]);
 
   return (
-    <Box p={4}>
-      <Heading mb={4}>Doctor Dashboard</Heading>
-      {error && (
-        <Alert status="error" mb={4}>
-          <AlertIcon />
-          {error}
-        </Alert>
-      )}
-      {loading ? (
-        <Spinner size="xl" />
-      ) : (
-        <Tabs>
-          <TabList>
-            <Tab>Pending Patients</Tab>
-            <Tab>Current Patient</Tab>
-          </TabList>
-
-          <TabPanels>
-            <TabPanel>
-              <Box overflowX="auto">
-                <Table variant="simple">
-                  <Thead>
-                    <Tr>
-                      <Th>Patient Name</Th>
-                      <Th>Prescribe</Th>
-                    </Tr>
-                  </Thead>
-                  {pendingPatients.length > 0 ? (
-                    <Tbody>
-                      {pendingPatients.map((patient) => (
-                        <Tr key={patient?.patient?._id}>
-                          <Td>{patient?.patient?.patientName}</Td>
-                          <Td>
-                            <Button
-                              colorScheme="blue"
-                              leftIcon={<FaPrescriptionBottle />}
-                              onClick={() => handlePrescribeClick(patient)}
-                            >
-                              Prescribe
-                            </Button>
-                          </Td>
-                        </Tr>
-                      ))}
-                    </Tbody>
-                  ) : (
-                    <p>No Patient</p>
-                  )}
-                </Table>
-              </Box>
-            </TabPanel>
-            <TabPanel>
-              {currentPatient ? (
-                <Box>
-                  <Heading size="md" mb={4}>
-                    Patient Details
-                  </Heading>
-                  <Box>
-                    <p>
-                      <strong>Name:</strong> {currentPatient.patientName}
-                    </p>
-                    <p>
-                      <strong>Ward Name:</strong> {currentPatient.wardName}
-                    </p>
-                    <p>
-                      <strong>Visit Category:</strong>{" "}
-                      {currentPatient.visitCategory}
-                    </p>
-                  </Box>
-                </Box>
-              ) : (
-                <Box>No patient selected.</Box>
-              )}
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      )}
-      {isModalOpen && (
-        <PrescriptionModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)} // Close the modal
-          patient={currentPatient}
-        />
-      )}
+    <Box width="100%" height="100vh" display="flex">
+      <Box>
+        <Sidebar />
+      </Box>
+      <Box
+        flex="1"
+        p="4"
+        ml="250px" // Added margin-left to account for the fixed sidebar
+        height="100vh"
+        overflowY="auto"
+      >
+        {/* Conditional rendering based on tab state */}
+        {tab === null && <PatientSummary />}
+        {tab === "summary" && <PatientSummary />}
+        {tab === "create-receptionist" && <CreateReceptionist />}
+        {tab === "create-doctor" && <CreateDoctor />}
+        {tab === "employees" && <Employees />}
+        {tab === "edit-employee" && employeeId && (
+          <EditEmployee id={employeeId} />
+        )}
+      </Box>
     </Box>
   );
 };
 
-export default DoctorPage;
+export default Doctor;

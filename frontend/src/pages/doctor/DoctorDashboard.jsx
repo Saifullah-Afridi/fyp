@@ -38,6 +38,7 @@ const DoctorDashboard = () => {
   const [medicines, setMedicines] = useState([]);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [status, setStatus] = useState(false);
 
   useEffect(() => {
     const fetchVisits = async () => {
@@ -45,7 +46,10 @@ const DoctorDashboard = () => {
         const response = await axios.get(
           "http://localhost:3000/api/v1/patient/todays-patients"
         );
-        setVisits(response.data.visits);
+
+        setVisits(
+          response.data.visits.filter((visit) => visit.status !== "complete")
+        );
       } catch (error) {
         toast({
           title: "Error fetching visits.",
@@ -57,7 +61,7 @@ const DoctorDashboard = () => {
       }
     };
     fetchVisits();
-  }, [toast]);
+  }, [toast, status]);
 
   useEffect(() => {
     if (editingVisit) {
@@ -192,6 +196,7 @@ const DoctorDashboard = () => {
         "http://localhost:3000/api/v1/patient/todays-patients"
       );
       setVisits(response.data.visits);
+      setStatus(true);
     } catch (error) {
       toast({
         title: "Error completing visit.",
@@ -220,11 +225,24 @@ const DoctorDashboard = () => {
   };
   return (
     <div>
-      {visits.length > 0 ? (
-        <Box>
-          <h1>Today's Patients</h1>
-          <Table variant="simple">
-            <Thead>
+      <Box w="95%" pt={5} mx="auto">
+        <Box align="center">
+          <Heading
+            fontWeight="semibold"
+            color="gray.600"
+            borderBottom="2px"
+            pb="3px"
+            width="fit-content"
+            fontSize="2xl"
+            mb={3}
+          >
+            {" "}
+            Today Appoientments
+          </Heading>
+        </Box>
+        {visits.length > 0 ? (
+          <Table variant="simple" colorScheme="blue" size="md">
+            <Thead bgColor="green.200">
               <Tr>
                 <Th>Patient Name</Th>
                 <Th>Status</Th>
@@ -250,19 +268,25 @@ const DoctorDashboard = () => {
               ))}
             </Tbody>
           </Table>
-        </Box>
-      ) : (
-        <Box
-          bgGradient="linear(to-r , green.300 , green.400,green.500)"
-          h="100vh"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          flexDir="column"
-        >
-          <Heading size="md">Loading</Heading>
-        </Box>
-      )}
+        ) : (
+          <Box
+            h="100vh"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            flexDir="column"
+          >
+            <Heading
+              p={4}
+              bgGradient="linear(to-r , red.300 , red.400)"
+              width="fit-content"
+              size="md"
+            >
+              No Appointment for day
+            </Heading>
+          </Box>
+        )}
+      </Box>
 
       {/* Modal for editing visit */}
 
