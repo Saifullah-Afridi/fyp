@@ -210,7 +210,14 @@ const DoctorDashboard = () => {
     setMedicines([]);
     onClose();
   };
-
+  const inputFieldStyle = {
+    height: "30px",
+    borderWidth: "1px",
+    boxShadow: "0 0 0 1px #3182ce",
+    borderColor: "blue.300",
+    outline: "none",
+    borderRadius: "3px",
+  };
   return (
     <div>
       {visits.length > 0 ? (
@@ -259,12 +266,7 @@ const DoctorDashboard = () => {
 
       {/* Modal for editing visit */}
 
-      <Modal
-        isOpen={isOpen}
-        isCentered={true}
-        onClose={handleCancel}
-        closeOnOverlayClick={false}
-      >
+      <Modal isOpen={isOpen} onClose={handleCancel} closeOnOverlayClick={false}>
         <ModalOverlay />
         <ModalContent
           width="70%"
@@ -274,9 +276,9 @@ const DoctorDashboard = () => {
           margin="0"
           padding="0"
         >
-          <ModalHeader fontSize="lg">
+          <Text fontSize="lg" p={4}>
             Prescribe for {editingVisit?.patient?.patientName}
-          </ModalHeader>
+          </Text>
           <ModalCloseButton />
           <ModalBody
             padding="4"
@@ -290,36 +292,93 @@ const DoctorDashboard = () => {
                 Prescription Details
               </FormLabel>
               <Textarea
+                {...inputFieldStyle}
                 id="prescription"
                 placeholder="Enter prescription"
                 value={prescription}
-                boxShadow="0 0 0 1px #3182ce"
-                borderColor="grey.300"
-                focusBorderColor="teal.500"
-                outline="none"
-                borderRadius="md"
                 height="60px"
                 resize="vertical"
               />
             </FormControl>
+
             <FormControl mb={4}>
-              <FormLabel htmlFor="tests">Tests</FormLabel>
+              <FormLabel fontSize="sm" htmlFor="medicines">
+                Medicines
+              </FormLabel>
+              {medicines.map((medicine, index) => (
+                <Box
+                  key={index}
+                  display="flex"
+                  gap="5px"
+                  alignItems="center"
+                  mb={2}
+                >
+                  <FormControl>
+                    <Input
+                      id={`medicine-name-${index}`}
+                      value={medicine.name}
+                      onChange={(e) =>
+                        handleMedicineChange(index, "name", e.target.value)
+                      }
+                      placeholder="Medicine Name"
+                      {...inputFieldStyle}
+                    />
+                  </FormControl>
+                  <FormControl>
+                    <Input
+                      id={`medicine-dosage-${index}`}
+                      value={medicine.dosage}
+                      onChange={(e) =>
+                        handleMedicineChange(index, "dosage", e.target.value)
+                      }
+                      placeholder="Dosage"
+                      {...inputFieldStyle}
+                    />
+                  </FormControl>
+                  <FormControl>
+                    <Input
+                      id={`medicine-duration-${index}`}
+                      value={medicine.duration}
+                      onChange={(e) =>
+                        handleMedicineChange(index, "duration", e.target.value)
+                      }
+                      placeholder="Duration"
+                      {...inputFieldStyle}
+                    />
+                  </FormControl>
+                  <IconButton
+                    icon={<FaMinus />}
+                    colorScheme="red"
+                    height="30px"
+                    ml={2}
+                    onClick={() => handleRemoveMedicine(index)}
+                  ></IconButton>
+                </Box>
+              ))}
+
+              <Button
+                leftIcon={<FaPlus />}
+                onClick={handleAddMedicine}
+                colorScheme="blue"
+                size="sm"
+              >
+                Add Medicine
+              </Button>
+            </FormControl>
+            <FormControl mb={4}>
+              <FormLabel fontSize="sm" htmlFor="tests">
+                Tests
+              </FormLabel>
               {tests.map((test, index) => (
                 <Flex key={index} align="center" mb={2}>
                   <Input
                     value={test}
                     onChange={(e) => handleTestChange(index, e.target.value)}
                     placeholder={`Test ${index + 1}`}
-                    boxShadow="0 0 0 1px #3182ce"
-                    borderColor="grey.300"
-                    focusBorderColor="teal.500"
-                    outline="none"
-                    height="35px"
-                    borderRadius="md"
-                    mr={2}
+                    {...inputFieldStyle}
                   />
                   <IconButton
-                    height="35px"
+                    height="30px"
                     ml={2}
                     icon={<FaMinus />}
                     onClick={() => handleRemoveTest(index)}
@@ -337,101 +396,23 @@ const DoctorDashboard = () => {
                 Add Test
               </Button>
             </FormControl>
-            <FormControl mb={4}>
-              <FormLabel htmlFor="medicines">Medicines</FormLabel>
-              {medicines.map((medicine, index) => (
-                <Box
-                  key={index}
-                  display="flex"
-                  gap="5px"
-                  alignItems="center"
-                  mb={2}
-                >
-                  <FormControl>
-                    <Input
-                      height="35px"
-                      id={`medicine-name-${index}`}
-                      value={medicine.name}
-                      onChange={(e) =>
-                        handleMedicineChange(index, "name", e.target.value)
-                      }
-                      placeholder="Medicine Name"
-                      boxShadow="0 0 0 1px #3182ce"
-                      borderColor="grey.300"
-                      focusBorderColor="teal.500"
-                      outline="none"
-                      borderRadius="md"
-                    />
-                  </FormControl>
-                  <FormControl>
-                    <Input
-                      height="35px"
-                      id={`medicine-dosage-${index}`}
-                      value={medicine.dosage}
-                      onChange={(e) =>
-                        handleMedicineChange(index, "dosage", e.target.value)
-                      }
-                      placeholder="Dosage"
-                      boxShadow="0 0 0 1px #3182ce"
-                      borderColor="grey.300"
-                      focusBorderColor="teal.500"
-                      outline="none"
-                      borderRadius="md"
-                    />
-                  </FormControl>
-                  <FormControl>
-                    <Input
-                      height="35px"
-                      id={`medicine-duration-${index}`}
-                      value={medicine.duration}
-                      onChange={(e) =>
-                        handleMedicineChange(index, "duration", e.target.value)
-                      }
-                      placeholder="Duration"
-                      boxShadow="0 0 0 1px #3182ce"
-                      borderColor="grey.300"
-                      focusBorderColor="teal.500"
-                      outline="none"
-                      borderRadius="md"
-                    />
-                  </FormControl>
-                  <IconButton
-                    icon={<FaMinus />}
-                    colorScheme="red"
-                    height="35px"
-                    ml={2}
-                    onClick={() => handleRemoveMedicine(index)}
-                  ></IconButton>
-                </Box>
-              ))}
-
+            <Box display="flex" gap={3}>
               <Button
-                leftIcon={<FaPlus />}
-                onClick={handleAddMedicine}
-                colorScheme="blue"
-                size="sm"
+                flex={1}
+                variant="outline"
+                colorScheme="red"
+                onClick={handleCancel}
               >
-                Add Medicine
+                Cancel
               </Button>
-            </FormControl>
+              <Button flex={1} colorScheme="blue" onClick={handlePending}>
+                Save as Pending
+              </Button>
+              <Button flex={1} colorScheme="green" onClick={handleComplete}>
+                Mark as Complete
+              </Button>
+            </Box>
           </ModalBody>
-
-          <ModalFooter display="flex" gap={3}>
-            <Button
-              flex={1}
-              variant="outline"
-              colorScheme="red"
-              onClick={handleCancel}
-            >
-              Cancel
-            </Button>
-            <Button flex={1} colorScheme="blue" onClick={handlePending}>
-              Save as Pending
-            </Button>
-            <Button flex={1} colorScheme="green" onClick={handleComplete}>
-              Mark as Complete
-            </Button>
-          </ModalFooter>
         </ModalContent>
       </Modal>
     </div>
