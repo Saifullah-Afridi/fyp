@@ -24,7 +24,11 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
+  Heading,
+  Text,
+  IconButton,
 } from "@chakra-ui/react";
+import { FaMinus, FaPlus } from "react-icons/fa";
 
 const DoctorDashboard = () => {
   const [visits, setVisits] = useState([]);
@@ -134,6 +138,9 @@ const DoctorDashboard = () => {
         isClosable: true,
       });
 
+      // Close the modal
+      onClose();
+
       setEditingVisit(null);
       const response = await axios.get(
         "http://localhost:3000/api/v1/patient/todays-patients"
@@ -177,6 +184,9 @@ const DoctorDashboard = () => {
         isClosable: true,
       });
 
+      // Close the modal
+      onClose();
+
       setEditingVisit(null);
       const response = await axios.get(
         "http://localhost:3000/api/v1/patient/todays-patients"
@@ -203,56 +213,93 @@ const DoctorDashboard = () => {
 
   return (
     <div>
-      <h1>Today's Patients</h1>
-      <Table variant="simple">
-        <Thead>
-          <Tr>
-            <Th>Patient Name</Th>
-            <Th>Status</Th>
-            <Th>Tests</Th>
-            <Th>Actions</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {visits?.map((visit) => (
-            <Tr key={visit._id}>
-              <Td>{visit.patient.patientName}</Td>
-              <Td>{visit.status}</Td>
-              <Td>{visit.tests.join(", ")}</Td>
-              <Td>
-                <Button
-                  colorScheme="blue"
-                  onClick={() => handlePrescribeClick(visit)}
-                >
-                  Prescribe
-                </Button>
-              </Td>
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
+      {visits.length > 0 ? (
+        <Box>
+          <h1>Today's Patients</h1>
+          <Table variant="simple">
+            <Thead>
+              <Tr>
+                <Th>Patient Name</Th>
+                <Th>Status</Th>
+                <Th>Tests</Th>
+                <Th>Actions</Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {visits?.map((visit) => (
+                <Tr key={visit._id}>
+                  <Td>{visit.patient.patientName}</Td>
+                  <Td>{visit.status}</Td>
+                  <Td>{visit.tests.join(", ")}</Td>
+                  <Td>
+                    <Button
+                      colorScheme="blue"
+                      onClick={() => handlePrescribeClick(visit)}
+                    >
+                      Prescribe
+                    </Button>
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
+      ) : (
+        <Box
+          bgGradient="linear(to-r , green.300 , green.400,green.500)"
+          h="100vh"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          flexDir="column"
+        >
+          <Heading size="md">Loading</Heading>
+        </Box>
+      )}
 
       {/* Modal for editing visit */}
-      <Modal isOpen={isOpen} onClose={handleCancel}>
+
+      <Modal
+        isOpen={isOpen}
+        isCentered={true}
+        onClose={handleCancel}
+        closeOnOverlayClick={false}
+      >
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
+        <ModalContent
+          width="70%"
+          maxWidth="none"
+          height="100vh"
+          maxHeight="100vh"
+          margin="0"
+          padding="0"
+        >
+          <ModalHeader fontSize="lg">
             Prescribe for {editingVisit?.patient?.patientName}
           </ModalHeader>
           <ModalCloseButton />
-          <ModalBody>
+          <ModalBody
+            padding="4"
+            display="flex"
+            flexDirection="column"
+            overflowY="auto"
+            height="calc(100vh - 80px)"
+          >
             <FormControl mb={4}>
-              <FormLabel htmlFor="prescription">Prescription Details</FormLabel>
+              <FormLabel fontSize="sm" htmlFor="prescription">
+                Prescription Details
+              </FormLabel>
               <Textarea
                 id="prescription"
-                value={prescription}
-                onChange={(e) => setPrescription(e.target.value)}
                 placeholder="Enter prescription"
-                borderColor="gray.300"
+                value={prescription}
+                boxShadow="0 0 0 1px #3182ce"
+                borderColor="grey.300"
+                focusBorderColor="teal.500"
+                outline="none"
                 borderRadius="md"
-                height="150px"
+                height="60px"
                 resize="vertical"
-                focusBorderColor="blue.500"
               />
             </FormControl>
             <FormControl mb={4}>
@@ -263,19 +310,30 @@ const DoctorDashboard = () => {
                     value={test}
                     onChange={(e) => handleTestChange(index, e.target.value)}
                     placeholder={`Test ${index + 1}`}
-                    borderColor="gray.300"
+                    boxShadow="0 0 0 1px #3182ce"
+                    borderColor="grey.300"
+                    focusBorderColor="teal.500"
+                    outline="none"
+                    height="35px"
                     borderRadius="md"
                     mr={2}
                   />
-                  <Button
+                  <IconButton
+                    height="35px"
+                    ml={2}
+                    icon={<FaMinus />}
                     onClick={() => handleRemoveTest(index)}
                     colorScheme="red"
-                  >
-                    Remove
-                  </Button>
+                  ></IconButton>
                 </Flex>
               ))}
-              <Button onClick={handleAddTest} colorScheme="teal">
+              <Button
+                leftIcon={<FaPlus />}
+                onClick={handleAddTest}
+                colorScheme="blue"
+                px="30px"
+                size="sm"
+              >
                 Add Test
               </Button>
             </FormControl>
@@ -284,79 +342,95 @@ const DoctorDashboard = () => {
               {medicines.map((medicine, index) => (
                 <Box
                   key={index}
-                  mb={4}
-                  borderWidth="1px"
-                  borderRadius="md"
-                  p={3}
+                  display="flex"
+                  gap="5px"
+                  alignItems="center"
+                  mb={2}
                 >
-                  <FormControl mb={2}>
-                    <FormLabel htmlFor={`medicine-name-${index}`}>
-                      Name
-                    </FormLabel>
+                  <FormControl>
                     <Input
+                      height="35px"
                       id={`medicine-name-${index}`}
                       value={medicine.name}
                       onChange={(e) =>
                         handleMedicineChange(index, "name", e.target.value)
                       }
                       placeholder="Medicine Name"
-                      borderColor="gray.300"
+                      boxShadow="0 0 0 1px #3182ce"
+                      borderColor="grey.300"
+                      focusBorderColor="teal.500"
+                      outline="none"
                       borderRadius="md"
                     />
                   </FormControl>
-                  <FormControl mb={2}>
-                    <FormLabel htmlFor={`medicine-dosage-${index}`}>
-                      Dosage
-                    </FormLabel>
+                  <FormControl>
                     <Input
+                      height="35px"
                       id={`medicine-dosage-${index}`}
                       value={medicine.dosage}
                       onChange={(e) =>
                         handleMedicineChange(index, "dosage", e.target.value)
                       }
                       placeholder="Dosage"
-                      borderColor="gray.300"
+                      boxShadow="0 0 0 1px #3182ce"
+                      borderColor="grey.300"
+                      focusBorderColor="teal.500"
+                      outline="none"
                       borderRadius="md"
                     />
                   </FormControl>
                   <FormControl>
-                    <FormLabel htmlFor={`medicine-duration-${index}`}>
-                      Duration
-                    </FormLabel>
                     <Input
+                      height="35px"
                       id={`medicine-duration-${index}`}
                       value={medicine.duration}
                       onChange={(e) =>
                         handleMedicineChange(index, "duration", e.target.value)
                       }
                       placeholder="Duration"
-                      borderColor="gray.300"
+                      boxShadow="0 0 0 1px #3182ce"
+                      borderColor="grey.300"
+                      focusBorderColor="teal.500"
+                      outline="none"
                       borderRadius="md"
                     />
                   </FormControl>
-                  <Button
-                    onClick={() => handleRemoveMedicine(index)}
+                  <IconButton
+                    icon={<FaMinus />}
                     colorScheme="red"
-                    mt={2}
-                  >
-                    Remove
-                  </Button>
+                    height="35px"
+                    ml={2}
+                    onClick={() => handleRemoveMedicine(index)}
+                  ></IconButton>
                 </Box>
               ))}
-              <Button onClick={handleAddMedicine} colorScheme="teal">
+
+              <Button
+                leftIcon={<FaPlus />}
+                onClick={handleAddMedicine}
+                colorScheme="blue"
+                size="sm"
+              >
                 Add Medicine
               </Button>
             </FormControl>
           </ModalBody>
 
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handlePending}>
+          <ModalFooter display="flex" gap={3}>
+            <Button
+              flex={1}
+              variant="outline"
+              colorScheme="red"
+              onClick={handleCancel}
+            >
+              Cancel
+            </Button>
+            <Button flex={1} colorScheme="blue" onClick={handlePending}>
               Save as Pending
             </Button>
-            <Button colorScheme="green" mr={3} onClick={handleComplete}>
+            <Button flex={1} colorScheme="green" onClick={handleComplete}>
               Mark as Complete
             </Button>
-            <Button onClick={handleCancel}>Cancel</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
