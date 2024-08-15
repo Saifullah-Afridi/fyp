@@ -108,7 +108,6 @@ const DoctorDashboard = () => {
     socket.on("connect", () => {
       console.log("Socket connected:", socket.id);
       console.log("coneecccccted");
-      socket.disconnect();
     });
 
     socket.emit("notify-waiting-room", visit);
