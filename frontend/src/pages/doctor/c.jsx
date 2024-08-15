@@ -2,9 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
   Button,
-  Input,
-  Textarea,
-  useToast,
   Table,
   Thead,
   Tbody,
@@ -12,10 +9,8 @@ import {
   Th,
   Td,
   Box,
-  Stack,
-  FormControl,
-  FormLabel,
-  Flex,
+  Heading,
+  useToast,
   useDisclosure,
   Modal,
   ModalOverlay,
@@ -24,9 +19,13 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
-  Heading,
   Text,
+  FormControl,
+  FormLabel,
+  Textarea,
+  Input,
   IconButton,
+  Flex,
 } from "@chakra-ui/react";
 import { FaBell, FaMinus, FaPlus } from "react-icons/fa";
 import io from "socket.io-client";
@@ -39,7 +38,6 @@ const DoctorDashboard = () => {
   const [medicines, setMedicines] = useState([]);
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [status, setStatus] = useState(false);
 
   useEffect(() => {
     const fetchVisits = async () => {
@@ -47,7 +45,6 @@ const DoctorDashboard = () => {
         const response = await axios.get(
           "http://localhost:3000/api/v1/patient/todays-patients"
         );
-
         setVisits(
           response.data.visits.filter((visit) => visit.status !== "complete")
         );
@@ -62,7 +59,8 @@ const DoctorDashboard = () => {
       }
     };
     fetchVisits();
-  }, [toast, status]);
+  }, [toast]);
+
   useEffect(() => {
     const socket = io("http://localhost:3000");
     socket.on("notify-waiting-room", (visit) => {
@@ -79,6 +77,7 @@ const DoctorDashboard = () => {
       socket.disconnect();
     };
   }, [toast]);
+
   useEffect(() => {
     if (editingVisit) {
       const {
@@ -86,16 +85,9 @@ const DoctorDashboard = () => {
         tests: editTests,
         medicines: editMedicines,
       } = editingVisit;
-
       setPrescription(editPrescription || "");
       setTests(editTests || []);
-      setMedicines(
-        editMedicines.map((m) => ({
-          name: m.name,
-          dosage: m.dosage,
-          duration: m.duration,
-        })) || []
-      );
+      setMedicines(editMedicines || []);
     }
   }, [editingVisit]);
 
@@ -103,46 +95,36 @@ const DoctorDashboard = () => {
     setEditingVisit(visit);
     onOpen();
   };
+
   const handleNotify = (visit) => {
     const socket = io("http://localhost:3000");
     socket.on("connect", () => {
       console.log("Socket connected:", socket.id);
       console.log("coneecccccted");
-      socket.disconnect();
     });
 
     socket.emit("notify-waiting-room", visit);
     console.log("coneeccccctedsdfdsfds");
   };
-  const handleAddTest = () => {
-    setTests([...tests, ""]);
-  };
 
-  const handleRemoveTest = (index) => {
+  const handleAddTest = () => setTests([...tests, ""]);
+  const handleRemoveTest = (index) =>
     setTests(tests.filter((_, i) => i !== index));
-  };
-
-  const handleTestChange = (index, value) => {
+  const handleTestChange = (index, value) =>
     setTests(tests.map((test, i) => (i === index ? value : test)));
-  };
 
-  const handleAddMedicine = () => {
+  const handleAddMedicine = () =>
     setMedicines([...medicines, { name: "", dosage: "", duration: "" }]);
-  };
-
-  const handleRemoveMedicine = (index) => {
+  const handleRemoveMedicine = (index) =>
     setMedicines(medicines.filter((_, i) => i !== index));
-  };
-
-  const handleMedicineChange = (index, field, value) => {
+  const handleMedicineChange = (index, field, value) =>
     setMedicines(
       medicines.map((medicine, i) =>
         i === index ? { ...medicine, [field]: value } : medicine
       )
     );
-  };
 
-  const handlePending = async () => {
+  const handleSaveVisit = async (status) => {
     if (!editingVisit) return;
 
     try {
@@ -157,20 +139,18 @@ const DoctorDashboard = () => {
       await axios.patch(
         `http://localhost:3000/api/v1/visit/update-status/${editingVisit._id}`,
         {
-          status: "pending",
+          status,
         }
       );
 
       toast({
-        title: "Visit status updated to Pending.",
+        title: `Visit ${status}.`,
         status: "success",
         duration: 5000,
         isClosable: true,
       });
 
-      // Close the modal
       onClose();
-
       setEditingVisit(null);
       const response = await axios.get(
         "http://localhost:3000/api/v1/patient/todays-patients"
@@ -178,54 +158,7 @@ const DoctorDashboard = () => {
       setVisits(response.data.visits);
     } catch (error) {
       toast({
-        title: "Error updating visit status.",
-        description: error.message,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    }
-  };
-
-  const handleComplete = async () => {
-    if (!editingVisit) return;
-
-    try {
-      await axios.patch(
-        `http://localhost:3000/api/v1/visit/update-visit/${editingVisit._id}`,
-        {
-          prescription,
-          tests,
-          medicines,
-        }
-      );
-      await axios.patch(
-        `http://localhost:3000/api/v1/visit/update-status/${editingVisit._id}`,
-        {
-          status: "complete",
-        }
-      );
-
-      toast({
-        title: "Visit completed.",
-        description: "The visit has been marked as complete.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
-
-      // Close the modal
-      onClose();
-
-      setEditingVisit(null);
-      const response = await axios.get(
-        "http://localhost:3000/api/v1/patient/todays-patients"
-      );
-      setVisits(response.data.visits);
-      setStatus(true);
-    } catch (error) {
-      toast({
-        title: "Error completing visit.",
+        title: `Error updating visit.`,
         description: error.message,
         status: "error",
         duration: 5000,
@@ -241,14 +174,7 @@ const DoctorDashboard = () => {
     setMedicines([]);
     onClose();
   };
-  const inputFieldStyle = {
-    height: "30px",
-    borderWidth: "1px",
-    boxShadow: "0 0 0 1px #3182ce",
-    borderColor: "blue.300",
-    outline: "none",
-    borderRadius: "3px",
-  };
+
   return (
     <div>
       <Box w="95%" pt={5} mx="auto">
@@ -262,29 +188,27 @@ const DoctorDashboard = () => {
             fontSize="2xl"
             mb={3}
           >
-            {" "}
-            Today Appoientments
+            Today Appointments
           </Heading>
         </Box>
         {visits.length > 0 ? (
           <Table variant="simple" colorScheme="blue" size="md">
-            <Thead bgColor="green.200" h="40px">
+            <Thead bgColor="green.200">
               <Tr>
                 <Th>Patient Name</Th>
                 <Th>Status</Th>
                 <Th>Tests</Th>
-                <Th>Actions</Th>
-                <Td>Notify</Td>
+                <Th>Prescribe</Th>
+                <Th>Notify</Th>
               </Tr>
             </Thead>
             <Tbody>
-              {visits?.map((visit) => (
-                <Tr height="40px" key={visit._id}>
+              {visits.map((visit) => (
+                <Tr key={visit._id}>
                   <Td>{visit.patient.patientName}</Td>
                   <Td>{visit.status}</Td>
                   <Td>{visit.tests.join(", ")}</Td>
-
-                  <Td p={4}>
+                  <Td>
                     <Button
                       colorScheme="blue"
                       onClick={() => handlePrescribeClick(visit)}
@@ -292,7 +216,7 @@ const DoctorDashboard = () => {
                       Prescribe
                     </Button>
                   </Td>
-                  <Td p={4}>
+                  <Td>
                     <Button
                       leftIcon={<FaBell />}
                       colorScheme="yellow"
@@ -326,8 +250,6 @@ const DoctorDashboard = () => {
         )}
       </Box>
 
-      {/* Modal for editing visit */}
-
       <Modal isOpen={isOpen} onClose={handleCancel} closeOnOverlayClick={false}>
         <ModalOverlay />
         <ModalContent
@@ -354,12 +276,12 @@ const DoctorDashboard = () => {
                 Prescription Details
               </FormLabel>
               <Textarea
-                {...inputFieldStyle}
                 id="prescription"
                 placeholder="Enter prescription"
                 value={prescription}
                 height="60px"
                 resize="vertical"
+                onChange={(e) => setPrescription(e.target.value)} // Added onChange handler
               />
             </FormControl>
 
@@ -383,7 +305,6 @@ const DoctorDashboard = () => {
                         handleMedicineChange(index, "name", e.target.value)
                       }
                       placeholder="Medicine Name"
-                      {...inputFieldStyle}
                     />
                   </FormControl>
                   <FormControl>
@@ -394,7 +315,6 @@ const DoctorDashboard = () => {
                         handleMedicineChange(index, "dosage", e.target.value)
                       }
                       placeholder="Dosage"
-                      {...inputFieldStyle}
                     />
                   </FormControl>
                   <FormControl>
@@ -405,7 +325,6 @@ const DoctorDashboard = () => {
                         handleMedicineChange(index, "duration", e.target.value)
                       }
                       placeholder="Duration"
-                      {...inputFieldStyle}
                     />
                   </FormControl>
                   <IconButton
@@ -414,67 +333,68 @@ const DoctorDashboard = () => {
                     height="30px"
                     ml={2}
                     onClick={() => handleRemoveMedicine(index)}
-                  ></IconButton>
+                    aria-label="Remove medicine"
+                  />
                 </Box>
               ))}
-
-              <Button
-                leftIcon={<FaPlus />}
-                onClick={handleAddMedicine}
-                colorScheme="blue"
-                size="sm"
-              >
+              <Button colorScheme="blue" onClick={handleAddMedicine} size="sm">
                 Add Medicine
               </Button>
             </FormControl>
+
             <FormControl mb={4}>
               <FormLabel fontSize="sm" htmlFor="tests">
                 Tests
               </FormLabel>
               {tests.map((test, index) => (
-                <Flex key={index} align="center" mb={2}>
+                <Box
+                  key={index}
+                  display="flex"
+                  gap="5px"
+                  alignItems="center"
+                  mb={2}
+                >
                   <Input
+                    id={`test-${index}`}
                     value={test}
                     onChange={(e) => handleTestChange(index, e.target.value)}
-                    placeholder={`Test ${index + 1}`}
-                    {...inputFieldStyle}
+                    placeholder="Test Name"
                   />
                   <IconButton
+                    icon={<FaMinus />}
+                    colorScheme="red"
                     height="30px"
                     ml={2}
-                    icon={<FaMinus />}
                     onClick={() => handleRemoveTest(index)}
-                    colorScheme="red"
-                  ></IconButton>
-                </Flex>
+                    aria-label="Remove test"
+                  />
+                </Box>
               ))}
-              <Button
-                leftIcon={<FaPlus />}
-                onClick={handleAddTest}
-                colorScheme="blue"
-                px="30px"
-                size="sm"
-              >
+              <Button colorScheme="blue" onClick={handleAddTest} size="sm">
                 Add Test
               </Button>
             </FormControl>
-            <Box display="flex" gap={3}>
+          </ModalBody>
+
+          <ModalFooter>
+            <Flex justify="space-between" width="100%">
               <Button
-                flex={1}
-                variant="outline"
-                colorScheme="red"
-                onClick={handleCancel}
+                colorScheme="blue"
+                onClick={() => handleSaveVisit("complete")}
               >
+                Save & Complete
+              </Button>
+              <Button
+                colorScheme="yellow"
+                onClick={() => handleSaveVisit("pending")}
+              >
+                Save & Pending
+              </Button>
+              <Button colorScheme="red" onClick={handleCancel}>
                 Cancel
               </Button>
-              <Button flex={1} colorScheme="blue" onClick={handlePending}>
-                Save as Pending
-              </Button>
-              <Button flex={1} colorScheme="green" onClick={handleComplete}>
-                Mark as Complete
-              </Button>
-            </Box>
-          </ModalBody>
+            </Flex>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </div>

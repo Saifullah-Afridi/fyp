@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+
 const AppError = require("./utils/AppError");
 const cors = require("cors");
 const bodyParser = require("body-parser");
@@ -22,6 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(cookieParser());
 //routes
+
 app.use("/api/v1/patient", patientRoutes);
 app.use("/api/v1/visit", visitRoutes);
 app.use("/api/v1/employee", employeRoutes);
