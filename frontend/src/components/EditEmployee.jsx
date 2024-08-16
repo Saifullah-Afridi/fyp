@@ -44,7 +44,7 @@ const EditEmployee = () => {
       try {
         const token = JSON.parse(localStorage.getItem("token"));
         const response = await axios.get(
-          `http://localhost:3000/api/v1/employee/${id}`,
+          `http://192.168.10.3:3000/api/v1/employee/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -88,7 +88,7 @@ const EditEmployee = () => {
       try {
         const token = JSON.parse(localStorage.getItem("token"));
         await axios.patch(
-          `http://localhost:3000/api/v1/employee/${id}`,
+          `http://192.168.10.3:3000/api/v1/employee/${id}`,
           {
             password: values.password,
             confirmPassword: values.confirmPassword,

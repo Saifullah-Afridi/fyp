@@ -141,7 +141,7 @@ const availableMedicines = [
   "Sumatriptan",
   "Rizatriptan",
 ];
-const socket = io("http://localhost:3000");
+const socket = io("http://192.168.10.3:3000");
 
 const DoctorDashboard = () => {
   const [visits, setVisits] = useState([]);
@@ -164,7 +164,7 @@ const DoctorDashboard = () => {
     const fetchVisits = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/v1/patient/todays-patients"
+          "http://192.168.10.3:3000/api/v1/patient/todays-patients"
         );
 
         setVisits(
@@ -273,7 +273,7 @@ const DoctorDashboard = () => {
 
     try {
       await axios.patch(
-        `http://localhost:3000/api/v1/visit/update-visit/${editingVisit._id}`,
+        `http://192.168.10.3:3000/api/v1/visit/update-visit/${editingVisit._id}`,
         {
           prescription,
           tests,
@@ -281,7 +281,7 @@ const DoctorDashboard = () => {
         }
       );
       await axios.patch(
-        `http://localhost:3000/api/v1/visit/update-status/${editingVisit._id}`,
+        `http://192.168.10.3:3000/api/v1/visit/update-status/${editingVisit._id}`,
         {
           status: "pending",
         }
@@ -299,7 +299,7 @@ const DoctorDashboard = () => {
 
       setEditingVisit(null);
       const response = await axios.get(
-        "http://localhost:3000/api/v1/patient/todays-patients"
+        "http://192.168.10.3:3000/api/v1/patient/todays-patients"
       );
       setVisits(
         response.data.visits.filter((visit) => visit.status !== "complete")
@@ -320,7 +320,7 @@ const DoctorDashboard = () => {
 
     try {
       await axios.patch(
-        `http://localhost:3000/api/v1/visit/update-visit/${editingVisit._id}`,
+        `http://192.168.10.3:3000/api/v1/visit/update-visit/${editingVisit._id}`,
         {
           prescription,
           tests,
@@ -328,7 +328,7 @@ const DoctorDashboard = () => {
         }
       );
       await axios.patch(
-        `http://localhost:3000/api/v1/visit/update-status/${editingVisit._id}`,
+        `http://192.168.10.3:3000/api/v1/visit/update-status/${editingVisit._id}`,
         {
           status: "complete",
         }
@@ -347,7 +347,7 @@ const DoctorDashboard = () => {
 
       setEditingVisit(null);
       const response = await axios.get(
-        "http://localhost:3000/api/v1/patient/todays-patients"
+        "http://192.168.10.3:3000/api/v1/patient/todays-patients"
       );
       setVisits(
         response.data.visits.filter((visit) => visit.status !== "complete")
@@ -423,7 +423,7 @@ const DoctorDashboard = () => {
     setIsLoadingPrevious(true);
     try {
       const response = await axios.get(
-        `http://localhost:3000/api/v1/visit/all-visits/${editingVisit.patient._id}`
+        `http://192.168.10.3:3000/api/v1/visit/all-visits/${editingVisit.patient._id}`
       );
       setPreviousVisits(response.data.visits);
       setShowAllRecordsModal(true);

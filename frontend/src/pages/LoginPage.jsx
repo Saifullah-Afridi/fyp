@@ -44,7 +44,7 @@ const Login = () => {
     }),
     onSubmit: async (values) => {
       axios
-        .post("http://localhost:3000/api/v1/employee/login", values)
+        .post("http://192.168.10.3:3000/api/v1/employee/login", values)
         .then((response) => {
           localStorage.setItem("user", JSON.stringify(response.data.employee));
           localStorage.setItem("token", JSON.stringify(response.data.token));

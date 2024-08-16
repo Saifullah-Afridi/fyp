@@ -77,7 +77,7 @@ const CreateDoctor = () => {
         const token = localStorage.getItem("token"); // Retrieve the token from local storage
 
         await axios.post(
-          "http://localhost:3000/api/v1/employee",
+          "http://192.168.10.3:3000/api/v1/employee",
           {
             ...values,
             occupation: "doctor",

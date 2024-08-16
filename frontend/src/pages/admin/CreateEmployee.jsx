@@ -71,7 +71,7 @@ const CreateEmployee = () => {
     }),
     onSubmit: (values) => {
       axios
-        .post("http://localhost:3000/api/v1/employee", values)
+        .post("http://192.168.10.3:3000/api/v1/employee", values)
         .then((response) => {
           setSuccessMessage("Employee registered successfully!");
           setErrorMessage("");

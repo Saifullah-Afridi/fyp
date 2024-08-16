@@ -6,9 +6,7 @@ import WaitingRoom from "./pages/WaitingRoom";
 import EditEmployee from "./components/EditEmployee";
 import ReceptionistPrivateRoutes from "./components/ReceptionistPrivateRoutes";
 import AdminPrivateRoutes from "./components/AdminPrivateRoutes";
-import DoctorPrivateRoute from "./components/DoctorPrivateRoute";
 import RoutesWithHeader from "./components/RoutesWithHeader";
-import Doctor from "./pages/doctor/Doctor";
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
 
 const App = () => {

@@ -79,7 +79,7 @@ const RegistrationForm = () => {
       try {
         // Register or update patient and create a visit record
         const response = await axios.post(
-          "http://localhost:3000/api/v1/patient",
+          "http://192.168.10.3:3000/api/v1/patient",
           values
         );
 
@@ -112,7 +112,7 @@ const RegistrationForm = () => {
 
     try {
       const response = await axios.get(
-        `http://localhost:3000/api/v1/patient?nic=${searchNIC}`
+        `http://192.168.10.3:3000/api/v1/patient?nic=${searchNIC}`
       );
 
       if (response.data && Array.isArray(response.data.patients)) {
@@ -136,8 +136,7 @@ const RegistrationForm = () => {
         formik.resetForm();
       }
     } catch (error) {
-      console.error("Search error:", error);
-      setErrorMessage("Failed to search patient. Please try again.");
+      setErrorMessage(error.response.data.message);
     }
   };
 

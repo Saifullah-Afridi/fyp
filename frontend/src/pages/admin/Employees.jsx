@@ -33,7 +33,7 @@ const Employees = () => {
       try {
         const token = JSON.parse(localStorage.getItem("token"));
         const response = await axios.get(
-          "http://localhost:3000/api/v1/employee",
+          "http://192.168.10.3:3000/api/v1/employee",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -112,7 +112,7 @@ const Employees = () => {
     try {
       const token = JSON.parse(localStorage.getItem("token"));
       await axios.delete(
-        `http://localhost:3000/api/v1/employee/${selectedEmployee._id}`,
+        `http://192.168.10.3:3000/api/v1/employee/${selectedEmployee._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

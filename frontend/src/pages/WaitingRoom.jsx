@@ -24,7 +24,7 @@ const WaitingRoom = () => {
     const fetchPatients = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3000/api/v1/patient/todays-patients"
+          "http://192.168.10.3:3000/api/v1/patient/todays-patients"
         );
         setPatients(response.data.patients);
       } catch (error) {
@@ -42,7 +42,7 @@ const WaitingRoom = () => {
   }, [toast]);
 
   useEffect(() => {
-    const socket = io("http://localhost:3000");
+    const socket = io("http://192.168.10.3:3000");
 
     // Listen for the 'notify-waiting-room' event
     socket.on("update-waiting-room", (visit) => {
@@ -57,15 +57,12 @@ const WaitingRoom = () => {
         isClosable: true,
       });
     });
-    return () => {
-      socket.disconnect();
-    };
   }, [toast]);
 
   const handleUpdatePatient = async (patientId) => {
     try {
       await axios.patch(
-        `http://localhost:3000/api/v1/patient/update-status/${patientId}`,
+        `http://192.168.10.3:3000/api/v1/patient/update-status/${patientId}`,
         {
           status: "In Progress",
         }

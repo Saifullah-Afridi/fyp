@@ -45,7 +45,7 @@ const WaitingRoom = () => {
     const socket = io("http://localhost:3000");
 
     // Listen for the 'notify-waiting-room' event
-    socket.on("notify-waiting-room", (visit) => {
+    socket.on("update-waiting-room", (visit) => {
       console.log("hello from there");
 
       setCurrentVisit(visit._id); // Update current visit ID
