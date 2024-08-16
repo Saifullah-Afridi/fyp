@@ -34,7 +34,7 @@ exports.recordVisit = async (req, res, next) => {
 exports.getPatientAllVisits = async (req, res, next) => {
   try {
     const patientId = req.params.id;
-    const visits = await Visit.find({ patient: patientId });
+    const visits = await Visit.find({ patient: patientId }).populate("patient");
     if (!visits) {
       return next(new AppError("no visit Found", 404));
     }

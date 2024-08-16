@@ -31,10 +31,10 @@ const App = () => {
               </ReceptionistPrivateRoutes>
             }
           />
+          <Route path="/doctor" element={<DoctorDashboard />}></Route>
         </Route>
 
         {/* docots routes */}
-        <Route path="/doctor" element={<DoctorDashboard />}></Route>
 
         {/* admin routes  */}
         <Route element={<AdminPrivateRoutes />}>

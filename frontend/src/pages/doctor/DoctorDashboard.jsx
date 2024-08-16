@@ -27,9 +27,115 @@ import {
   Heading,
   Text,
   IconButton,
+  List,
+  ListItem,
+  HStack,
+  Spinner,
+  Card,
+  CardHeader,
+  CardBody,
+  Divider,
 } from "@chakra-ui/react";
-import { FaBell, FaMinus, FaPlus } from "react-icons/fa";
+import { FaBell, FaMinus, FaPlus, FaTrash } from "react-icons/fa";
 import io from "socket.io-client";
+const availableMedicines = [
+  "Aspirin",
+  "Paracetamol",
+  "Ibuprofen",
+  "Amoxicillin",
+  "Azithromycin",
+  "Metformin",
+  "Lisinopril",
+  "Atorvastatin",
+  "Losartan",
+  "Hydrochlorothiazide",
+  "Omeprazole",
+  "Simvastatin",
+  "Gabapentin",
+  "Cetirizine",
+  "Diphenhydramine",
+  "Loratadine",
+  "Ranitidine",
+  "Naproxen",
+  "Tramadol",
+  "Hydrocodone",
+  "Codeine",
+  "Clopidogrel",
+  "Warfarin",
+  "Furosemide",
+  "Hydrochlorothiazide",
+  "Prednisone",
+  "Dexamethasone",
+  "Methylprednisolone",
+  "Albuterol",
+  "Fluticasone",
+  "Budesonide",
+  "Salbutamol",
+  "Levofloxacin",
+  "Doxycycline",
+  "Ciprofloxacin",
+  "Metronidazole",
+  "Clarithromycin",
+  "Lorazepam",
+  "Diazepam",
+  "Clonazepam",
+  "Temazepam",
+  "Sertraline",
+  "Fluoxetine",
+  "Citalopram",
+  "Escitalopram",
+  "Venlafaxine",
+  "Duloxetine",
+  "Bupropion",
+  "Trazodone",
+  "Mirtazapine",
+  "Atenolol",
+  "Metoprolol",
+  "Propranolol",
+  "Carvedilol",
+  "Bisoprolol",
+  "Enalapril",
+  "Ramipril",
+  "Perindopril",
+  "Ezetimibe",
+  "Niacin",
+  "Fenofibrate",
+  "Lovastatin",
+  "Rosuvastatin",
+  "Nifedipine",
+  "Amlodipine",
+  "Verapamil",
+  "Diltiazem",
+  "Sildenafil",
+  "Tadalafil",
+  "Vardenafil",
+  "Lorazepam",
+  "Buspirone",
+  "Hydroxyzine",
+  "Pregabalin",
+  "Ropinirole",
+  "Pramipexole",
+  "Latanoprost",
+  "Timolol",
+  "Brimonidine",
+  "Travoprost",
+  "Bimatoprost",
+  "Diphenhydramine",
+  "Hydroxyzine",
+  "Fexofenadine",
+  "Chlorpheniramine",
+  "Desloratadine",
+  "Mometasone",
+  "Beclometasone",
+  "Flunisolide",
+  "Rivastigmine",
+  "Donepezil",
+  "Galantamine",
+  "Memantine",
+  "Sumatriptan",
+  "Rizatriptan",
+];
+const socket = io("http://localhost:3000");
 
 const DoctorDashboard = () => {
   const [visits, setVisits] = useState([]);
@@ -40,6 +146,13 @@ const DoctorDashboard = () => {
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [status, setStatus] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(null);
+  const [medicineSuggestions, setMedicineSuggestions] = useState([]);
+  const [currentMedicineInput, setCurrentMedicineInput] = useState("");
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [showAllRecordsModal, setShowAllRecordsModal] = useState(false);
+  const [previousVisits, setPreviousVisits] = useState([]);
+  const [isLoadingPrevious, setIsLoadingPrevious] = useState(false);
 
   useEffect(() => {
     const fetchVisits = async () => {
@@ -62,9 +175,10 @@ const DoctorDashboard = () => {
       }
     };
     fetchVisits();
-  }, [toast, status]);
+  }, [toast]);
+
   useEffect(() => {
-    const socket = io("http://localhost:3000");
+    // Setup socket listeners
     socket.on("notify-waiting-room", (visit) => {
       toast({
         title: "Patient notified.",
@@ -75,10 +189,12 @@ const DoctorDashboard = () => {
       });
     });
 
+    // Clean up socket listeners on component unmount
     return () => {
-      socket.disconnect();
+      socket.off("notify-waiting-room");
     };
   }, [toast]);
+
   useEffect(() => {
     if (editingVisit) {
       const {
@@ -99,20 +215,24 @@ const DoctorDashboard = () => {
     }
   }, [editingVisit]);
 
+  const handleNotify = (visit) => {
+    if (socket.connected) {
+      socket.emit("notify-waiting-room", visit, () => {
+        console.log("Notification sent");
+
+        // Optionally disconnect after sending the notification
+        socket.disconnect();
+      });
+    } else {
+      console.error("Socket is not connected");
+    }
+  };
+
   const handlePrescribeClick = (visit) => {
     setEditingVisit(visit);
     onOpen();
   };
-  const handleNotify = (visit) => {
-    const socket = io("http://localhost:3000");
-    socket.on("connect", () => {
-      console.log("Socket connected:", socket.id);
-      console.log("coneecccccted");
-    });
 
-    socket.emit("notify-waiting-room", visit);
-    console.log("coneeccccctedsdfdsfds");
-  };
   const handleAddTest = () => {
     setTests([...tests, ""]);
   };
@@ -139,6 +259,7 @@ const DoctorDashboard = () => {
         i === index ? { ...medicine, [field]: value } : medicine
       )
     );
+    setCurrentMedicineInput(value);
   };
 
   const handlePending = async () => {
@@ -174,7 +295,9 @@ const DoctorDashboard = () => {
       const response = await axios.get(
         "http://localhost:3000/api/v1/patient/todays-patients"
       );
-      setVisits(response.data.visits);
+      setVisits(
+        response.data.visits.filter((visit) => visit.status !== "complete")
+      );
     } catch (error) {
       toast({
         title: "Error updating visit status.",
@@ -220,8 +343,10 @@ const DoctorDashboard = () => {
       const response = await axios.get(
         "http://localhost:3000/api/v1/patient/todays-patients"
       );
-      setVisits(response.data.visits);
-      setStatus(true);
+      setVisits(
+        response.data.visits.filter((visit) => visit.status !== "complete")
+      );
+      setStatus(!status);
     } catch (error) {
       toast({
         title: "Error completing visit.",
@@ -248,6 +373,67 @@ const DoctorDashboard = () => {
     outline: "none",
     borderRadius: "3px",
   };
+  const handleDeleteVisit = async (visit) => {
+    setLoadingDelete(visit._id); // Start loading state for this delete operation
+
+    const updatedVisits = visits.filter((v) => v._id !== visit._id);
+    setVisits(updatedVisits);
+  };
+  const handleMedicineInput = (value) => {
+    setCurrentMedicineInput(value);
+    setSelectedSuggestionIndex(-1); // Reset the selected suggestion index
+
+    if (value) {
+      const filteredMedicines = availableMedicines.filter((medicine) =>
+        medicine.toLowerCase().startsWith(value.toLowerCase())
+      );
+      setMedicineSuggestions(filteredMedicines);
+    } else {
+      setMedicineSuggestions([]);
+    }
+  };
+  const handleKeyDown = (e) => {
+    if (medicineSuggestions.length > 0) {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setSelectedSuggestionIndex((prevIndex) =>
+          prevIndex < medicineSuggestions.length - 1 ? prevIndex + 1 : 0
+        );
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setSelectedSuggestionIndex((prevIndex) =>
+          prevIndex > 0 ? prevIndex - 1 : medicineSuggestions.length - 1
+        );
+      } else if (e.key === "Enter" && selectedSuggestionIndex >= 0) {
+        e.preventDefault();
+        const selectedMedicine = medicineSuggestions[selectedSuggestionIndex];
+        setCurrentMedicineInput(selectedMedicine);
+        setMedicineSuggestions([]); // Clear the suggestions
+      }
+    }
+  };
+  const fetchPreviousVisits = async () => {
+    if (!editingVisit) return;
+    setIsLoadingPrevious(true);
+    try {
+      const response = await axios.get(
+        `http://localhost:3000/api/v1/visit/all-visits/${editingVisit.patient._id}`
+      );
+      setPreviousVisits(response.data.visits);
+      setShowAllRecordsModal(true);
+    } catch (error) {
+      toast({
+        title: "Error fetching previous visits.",
+        description: error.response.data.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } finally {
+      setIsLoadingPrevious(false);
+    }
+  };
+
   return (
     <div>
       <Box w="95%" pt={5} mx="auto">
@@ -259,7 +445,7 @@ const DoctorDashboard = () => {
             pb="3px"
             width="fit-content"
             fontSize="2xl"
-            mb={3}
+            mb={6}
           >
             {" "}
             Today Appoientments
@@ -267,23 +453,23 @@ const DoctorDashboard = () => {
         </Box>
         {visits.length > 0 ? (
           <Table variant="simple" colorScheme="blue" size="md">
-            <Thead bgColor="green.200" h="40px">
+            <Thead bgColor="green.200">
               <Tr>
                 <Th>Patient Name</Th>
                 <Th>Status</Th>
                 <Th>Tests</Th>
-                <Th>Actions</Th>
-                <Td>Notify</Td>
+                <Th>Prescribe</Th>
+                <Th>Notify</Th>
+                <Th>Remove</Th>
               </Tr>
             </Thead>
             <Tbody>
               {visits?.map((visit) => (
-                <Tr height="40px" key={visit._id}>
+                <Tr key={visit._id}>
                   <Td>{visit.patient.patientName}</Td>
                   <Td>{visit.status}</Td>
                   <Td>{visit.tests.join(", ")}</Td>
-
-                  <Td p={4}>
+                  <Td>
                     <Button
                       colorScheme="blue"
                       onClick={() => handlePrescribeClick(visit)}
@@ -291,7 +477,7 @@ const DoctorDashboard = () => {
                       Prescribe
                     </Button>
                   </Td>
-                  <Td p={4}>
+                  <Td>
                     <Button
                       leftIcon={<FaBell />}
                       colorScheme="yellow"
@@ -301,32 +487,45 @@ const DoctorDashboard = () => {
                       Notify
                     </Button>
                   </Td>
+                  <Td>
+                    <Button
+                      colorScheme="red"
+                      leftIcon={<FaTrash />}
+                      aria-label="Delete"
+                      isDisabled={visit.status !== "complete"}
+                      isLoading={loadingDelete === visit._id}
+                      onClick={() => handleDeleteVisit(visit)}
+                    >
+                      Remove
+                    </Button>
+                  </Td>
                 </Tr>
               ))}
             </Tbody>
           </Table>
         ) : (
           <Box
-            h="100vh"
+            h="90vh"
             display="flex"
             justifyContent="center"
             alignItems="center"
             flexDir="column"
           >
             <Heading
+              borderRadius="7px"
+              color="gray.700"
               p={4}
+              fontWeight="semibold"
               bgGradient="linear(to-r , red.300 , red.400)"
               width="fit-content"
               size="md"
             >
-              No Appointment for day
+              No Appointment is avaiable
             </Heading>
           </Box>
         )}
       </Box>
-
       {/* Modal for editing visit */}
-
       <Modal isOpen={isOpen} onClose={handleCancel} closeOnOverlayClick={false}>
         <ModalOverlay />
         <ModalContent
@@ -337,9 +536,23 @@ const DoctorDashboard = () => {
           margin="0"
           padding="0"
         >
-          <Text fontSize="lg" p={4}>
-            Prescribe for {editingVisit?.patient?.patientName}
-          </Text>
+          <HStack
+            mt={4}
+            width="90%"
+            align="center"
+            justifyContent="space-between"
+          >
+            <Text fontSize="lg" p={4}>
+              Prescribe for {editingVisit?.patient?.patientName}
+            </Text>
+            <Button
+              colorScheme="blue"
+              variant="outline"
+              onClick={fetchPreviousVisits}
+            >
+              View Previous Records
+            </Button>
+          </HStack>
           <ModalCloseButton />
           <ModalBody
             padding="4"
@@ -359,6 +572,7 @@ const DoctorDashboard = () => {
                 value={prescription}
                 height="60px"
                 resize="vertical"
+                onChange={(e) => setPrescription(e.target.value)}
               />
             </FormControl>
 
@@ -373,17 +587,56 @@ const DoctorDashboard = () => {
                   gap="5px"
                   alignItems="center"
                   mb={2}
+                  position="relative"
                 >
                   <FormControl>
                     <Input
                       id={`medicine-name-${index}`}
                       value={medicine.name}
-                      onChange={(e) =>
-                        handleMedicineChange(index, "name", e.target.value)
-                      }
+                      onChange={(e) => {
+                        handleMedicineInput(e.target.value);
+                        handleMedicineChange(index, "name", e.target.value);
+                      }}
+                      onKeyDown={handleKeyDown}
                       placeholder="Medicine Name"
                       {...inputFieldStyle}
                     />
+                    {medicineSuggestions.length > 0 && (
+                      <List
+                        borderWidth="1px"
+                        borderRadius="sm"
+                        mt={1}
+                        maxHeight="150px"
+                        overflowY="auto"
+                        position="absolute"
+                        backgroundColor="white"
+                        width="100%"
+                        zIndex="1"
+                        borderColor="gray.200"
+                      >
+                        {medicineSuggestions.map((suggestion, i) => (
+                          <ListItem
+                            key={i}
+                            padding="2"
+                            onClick={() => {
+                              handleMedicineChange(index, "name", suggestion);
+                              setMedicineSuggestions([]); // Clear the suggestions
+                            }}
+                            bg={
+                              i === selectedSuggestionIndex
+                                ? "blue.100"
+                                : "white"
+                            }
+                            _hover={{
+                              backgroundColor: "gray.100",
+                              cursor: "pointer",
+                            }}
+                          >
+                            {suggestion}
+                          </ListItem>
+                        ))}
+                      </List>
+                    )}
                   </FormControl>
                   <FormControl>
                     <Input
@@ -416,7 +669,6 @@ const DoctorDashboard = () => {
                   ></IconButton>
                 </Box>
               ))}
-
               <Button
                 leftIcon={<FaPlus />}
                 onClick={handleAddMedicine}
@@ -474,6 +726,84 @@ const DoctorDashboard = () => {
               </Button>
             </Box>
           </ModalBody>
+        </ModalContent>
+      </Modal>
+
+      {/* below is the modal for the previou record */}
+      <Modal
+        isOpen={showAllRecordsModal}
+        onClose={() => setShowAllRecordsModal(false)}
+        size="lg"
+      >
+        <ModalOverlay />
+        <ModalContent
+          width="60%"
+          maxWidth="none"
+          height="100vh"
+          maxHeight="100vh"
+          margin="0"
+          padding="0"
+        >
+          <ModalHeader>
+            All Previous Records of {previousVisits?.[0]?.patient?.patientName}
+          </ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            {isLoadingPrevious ? (
+              <Flex justify="center" align="center" height="300px">
+                <Spinner size="xl" />
+              </Flex>
+            ) : previousVisits.length > 0 ? (
+              previousVisits.map((visit) => (
+                <Card key={visit._id} mb={4}>
+                  <CardHeader>
+                    <Heading size="md">
+                      Visit on {new Date(visit.date).toLocaleDateString()}
+                    </Heading>
+                  </CardHeader>
+                  <CardBody>
+                    <Text>
+                      <strong>Patient Name:</strong> {visit.patient.patientName}
+                    </Text>
+                    <Text>
+                      <strong>Prescription:</strong> {visit.prescription}
+                    </Text>
+                    <Text>
+                      <strong>Tests:</strong> {visit.tests.join(", ")}
+                    </Text>
+                    <Text>
+                      <strong>Medicines:</strong>{" "}
+                      {visit.medicines
+                        .map((m) => `${m.name} (${m.dosage}, ${m.duration})`)
+                        .join(", ")}
+                    </Text>
+                    <Text>
+                      <strong>Status:</strong> {visit.status}
+                    </Text>
+                  </CardBody>
+                  <Divider />
+                </Card>
+              ))
+            ) : (
+              <Box
+                textAlign="center"
+                py={10}
+                px={6}
+                bg="gray.100"
+                borderRadius="md"
+              >
+                <Text fontSize="lg">No previous records found.</Text>
+              </Box>
+            )}
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              colorScheme="blue"
+              onClick={() => setShowAllRecordsModal(false)}
+            >
+              Close
+            </Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </div>

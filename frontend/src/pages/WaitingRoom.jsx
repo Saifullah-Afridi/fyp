@@ -57,6 +57,9 @@ const WaitingRoom = () => {
         isClosable: true,
       });
     });
+    return () => {
+      socket.disconnect();
+    };
   }, [toast]);
 
   const handleUpdatePatient = async (patientId) => {
