@@ -10,7 +10,6 @@ import DoctorPrivateRoute from "./components/DoctorPrivateRoute";
 import RoutesWithHeader from "./components/RoutesWithHeader";
 import Doctor from "./pages/doctor/Doctor";
 import DoctorDashboard from "./pages/doctor/DoctorDashboard";
-import VisitDetails from "./pages/doctor/VisitDetails";
 
 const App = () => {
   return (
@@ -42,7 +41,6 @@ const App = () => {
             <Route path="edit-employee/:id" element={<EditEmployee />} />
           </Route>
         </Route>
-        <Route path="waiting-room" element={<WaitingRoom />}></Route>
       </Routes>
     </BrowserRouter>
   );

@@ -35,6 +35,12 @@ import {
   CardHeader,
   CardBody,
   Divider,
+  TableCaption,
+  SimpleGrid,
+  Grid,
+  GridItem,
+  OrderedList,
+  Portal,
 } from "@chakra-ui/react";
 import { FaBell, FaMinus, FaPlus, FaTrash } from "react-icons/fa";
 import io from "socket.io-client";
@@ -246,7 +252,7 @@ const DoctorDashboard = () => {
   };
 
   const handleAddMedicine = () => {
-    setMedicines([...medicines, { name: "", dosage: "", duration: "" }]);
+    setMedicines([...medicines, { name: "", days: "", duration: "" }]);
   };
 
   const handleRemoveMedicine = (index) => {
@@ -366,7 +372,7 @@ const DoctorDashboard = () => {
     onClose();
   };
   const inputFieldStyle = {
-    height: "30px",
+    height: "35px",
     borderWidth: "1px",
     boxShadow: "0 0 0 1px #3182ce",
     borderColor: "blue.300",
@@ -452,7 +458,7 @@ const DoctorDashboard = () => {
           </Heading>
         </Box>
         {visits.length > 0 ? (
-          <Table variant="simple" colorScheme="blue" size="md">
+          <Table variant="simple" colorScheme="blue" size="lg">
             <Thead bgColor="green.200">
               <Tr>
                 <Th>Patient Name</Th>
@@ -526,15 +532,21 @@ const DoctorDashboard = () => {
         )}
       </Box>
       {/* Modal for editing visit */}
-      <Modal isOpen={isOpen} onClose={handleCancel} closeOnOverlayClick={false}>
+      <Modal
+        motionPreset="slideInBottom"
+        isOpen={isOpen}
+        onClose={handleCancel}
+        closeOnOverlayClick={false}
+      >
         <ModalOverlay />
         <ModalContent
           width="70%"
-          maxWidth="none"
+          maxWidth="75%"
           height="100vh"
           maxHeight="100vh"
           margin="0"
           padding="0"
+          overflowY="auto"
         >
           <HStack
             mt={4}
@@ -559,7 +571,7 @@ const DoctorDashboard = () => {
             display="flex"
             flexDirection="column"
             overflowY="auto"
-            height="calc(100vh - 80px)"
+            height="calc(100vh - 75px)"
           >
             <FormControl mb={4}>
               <FormLabel fontSize="sm" htmlFor="prescription">
@@ -570,7 +582,7 @@ const DoctorDashboard = () => {
                 id="prescription"
                 placeholder="Enter prescription"
                 value={prescription}
-                height="60px"
+                height="100px"
                 resize="vertical"
                 onChange={(e) => setPrescription(e.target.value)}
               />
@@ -651,10 +663,10 @@ const DoctorDashboard = () => {
                   </FormControl>
                   <FormControl>
                     <Input
-                      id={`medicine-duration-${index}`}
-                      value={medicine.duration}
+                      id={`medicine-days-${index}`}
+                      value={medicine.days}
                       onChange={(e) =>
-                        handleMedicineChange(index, "duration", e.target.value)
+                        handleMedicineChange(index, "days", e.target.value)
                       }
                       placeholder="Duration"
                       {...inputFieldStyle}
@@ -734,77 +746,217 @@ const DoctorDashboard = () => {
         isOpen={showAllRecordsModal}
         onClose={() => setShowAllRecordsModal(false)}
         size="lg"
+        motionPreset="slideInBottom"
       >
-        <ModalOverlay />
-        <ModalContent
-          width="60%"
-          maxWidth="none"
-          height="100vh"
-          maxHeight="100vh"
-          margin="0"
-          padding="0"
-        >
-          <ModalHeader>
-            All Previous Records of {previousVisits?.[0]?.patient?.patientName}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            {isLoadingPrevious ? (
-              <Flex justify="center" align="center" height="300px">
-                <Spinner size="xl" />
-              </Flex>
-            ) : previousVisits.length > 0 ? (
-              previousVisits.map((visit) => (
-                <Card key={visit._id} mb={4}>
-                  <CardHeader>
-                    <Heading size="md">
-                      Visit on {new Date(visit.date).toLocaleDateString()}
-                    </Heading>
-                  </CardHeader>
-                  <CardBody>
-                    <Text>
-                      <strong>Patient Name:</strong> {visit.patient.patientName}
-                    </Text>
-                    <Text>
-                      <strong>Prescription:</strong> {visit.prescription}
-                    </Text>
-                    <Text>
-                      <strong>Tests:</strong> {visit.tests.join(", ")}
-                    </Text>
-                    <Text>
-                      <strong>Medicines:</strong>{" "}
-                      {visit.medicines
-                        .map((m) => `${m.name} (${m.dosage}, ${m.duration})`)
-                        .join(", ")}
-                    </Text>
-                    <Text>
-                      <strong>Status:</strong> {visit.status}
-                    </Text>
-                  </CardBody>
-                  <Divider />
-                </Card>
-              ))
-            ) : (
-              <Box
-                textAlign="center"
-                py={10}
-                px={6}
-                bg="gray.100"
-                borderRadius="md"
-              >
-                <Text fontSize="lg">No previous records found.</Text>
-              </Box>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              colorScheme="blue"
-              onClick={() => setShowAllRecordsModal(false)}
+        <Portal>
+          <ModalOverlay />
+          <ModalContent
+            width="60%"
+            maxWidth="none"
+            height="100vh"
+            margin="0"
+            padding="0"
+            overflowY="auto"
+          >
+            <Heading pl="20px" size="md" fontWeight="semibold" my={6}>
+              All Previous Records of{" "}
+              {previousVisits?.[0]?.patient?.patientName}
+            </Heading>
+            <ModalCloseButton />
+            <ModalBody
+              padding="20px"
+              display="flex"
+              flexDirection="column"
+              overflowY="auto"
+              height="calc(100vh - 60px)" // Adjust height as needed
             >
-              Close
-            </Button>
-          </ModalFooter>
-        </ModalContent>
+              {isLoadingPrevious ? (
+                <Flex justify="center" align="center">
+                  <Spinner size="xl" />
+                </Flex>
+              ) : previousVisits.length > 0 ? (
+                previousVisits.map((visit, index) => (
+                  <Card
+                    mb={7}
+                    key={visit._id}
+                    border="2px"
+                    borderColor="gray.400"
+                    borderRadius="md"
+                    shadow="md"
+                  >
+                    <Box
+                      position="relative"
+                      px="100px"
+                      borderBottom="2px"
+                      borderColor="gray.400"
+                      height="50px" // Adjust as needed
+                    >
+                      <Heading
+                        fontSize="18px"
+                        position="absolute"
+                        top="50%"
+                        left="10"
+                        transform="translateY(-50%)"
+                      >
+                        S.No {index + 1}
+                      </Heading>
+                      <Box
+                        position="absolute"
+                        top="0"
+                        bottom="0"
+                        left="33%"
+                        width="1px"
+                        backgroundColor="gray.400"
+                      />
+                      <Heading
+                        fontSize="18px"
+                        position="absolute"
+                        top="50%"
+                        left="50%"
+                        transform="translateX(-50%) translateY(-50%)"
+                      >
+                        Visit on {new Date(visit.date).toLocaleDateString()}
+                      </Heading>
+                      <Box
+                        position="absolute"
+                        top="0"
+                        bottom="0"
+                        left="66%"
+                        width="1px"
+                        backgroundColor="gray.400"
+                      />
+                      <Heading
+                        fontSize="18px"
+                        position="absolute"
+                        top="50%"
+                        right="10"
+                        transform="translateY(-50%)"
+                      >
+                        Ward OPD
+                      </Heading>
+                    </Box>
+                    <CardBody>
+                      <Flex
+                        gap={4}
+                        shadow="sm"
+                        p="10px"
+                        border="1px"
+                        borderRadius="7px"
+                        borderColor="gray.200"
+                        boxShadow="sm"
+                        mb={4}
+                      >
+                        <Text
+                          alignSelf="center"
+                          fontWeight="bold"
+                          fontSize="sm"
+                        >
+                          Doctor Note
+                        </Text>
+                        <Text flex={1}>{visit.prescription}</Text>
+                      </Flex>
+                      <Text mt="15px" mb="5px" fontSize="md" fontWeight="bold">
+                        Medicines
+                      </Text>
+                      <Box
+                        borderRight="1px"
+                        borderLeft="1px"
+                        borderTop="1px"
+                        borderColor="gray.200"
+                        borderRadius="5px"
+                        py="10px"
+                        px="0px"
+                      >
+                        <Grid
+                          px="10px"
+                          py="4px"
+                          templateColumns={{ base: "3fr", md: "1fr 1fr 1fr" }}
+                        >
+                          <GridItem>
+                            <Text fontSize="15px" fontWeight="bold">
+                              Medincine Name
+                            </Text>
+                          </GridItem>
+                          <GridItem>
+                            <Text fontWeight="bold" fontSize="15px">
+                              dosage
+                            </Text>
+                          </GridItem>
+                          <GridItem>
+                            <Text fontWeight="bold" fontSize="15px">
+                              duration
+                            </Text>
+                          </GridItem>
+                        </Grid>
+                        {visit?.medicines?.length !== 0 && (
+                          <Grid
+                            px="10px"
+                            borderTop="1px"
+                            borderBottom="1px"
+                            borderColor="gray.200"
+                            py="7px"
+                            templateColumns={{ base: "3fr", md: "1fr 1fr 1fr" }}
+                          >
+                            {visit.medicines.map((m, index) => (
+                              <React.Fragment key={index}>
+                                <GridItem>
+                                  <Text>{m.name}</Text>
+                                </GridItem>
+                                <GridItem>
+                                  <Text>{m.dosage}</Text>
+                                </GridItem>
+                                <GridItem>
+                                  <Text>{m.days}</Text>
+                                </GridItem>
+                              </React.Fragment>
+                            ))}
+                          </Grid>
+                        )}
+                      </Box>
+                      <Text mt="15px" fontWeight="bold" fontSize="sm">
+                        Tests
+                      </Text>
+                      {visit?.tests?.length !== 0 && (
+                        <OrderedList
+                          border="1px"
+                          borderColor="gray.200"
+                          p="5px"
+                          px="15px"
+                          borderRadius="7px"
+                        >
+                          {visit.tests.map((test, index) => (
+                            <ListItem fontSize="15px" px="5px" key={index}>
+                              {test}
+                            </ListItem>
+                          ))}
+                        </OrderedList>
+                      )}
+                    </CardBody>
+                    <Divider />
+                  </Card>
+                ))
+              ) : (
+                <Box
+                  textAlign="center"
+                  py={10}
+                  px={6}
+                  bg="gray.100"
+                  borderRadius="md"
+                >
+                  <Text fontSize="lg">No previous records found.</Text>
+                </Box>
+              )}
+              <Button
+                py={4}
+                alignSelf="end"
+                colorScheme="blue"
+                onClick={() => setShowAllRecordsModal(false)}
+              >
+                Close
+              </Button>
+            </ModalBody>
+          </ModalContent>
+        </Portal>
       </Modal>
     </div>
   );
